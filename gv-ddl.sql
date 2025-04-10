@@ -26,7 +26,7 @@ CREATE TABLE `developer` (
 CREATE TABLE `game` (
     gameID int,
     title text,
-    genre ENUM('FPS','Hack \'n Slash','RPG','Fighting'),
+    genre ENUM('FPS','Hack n Slash','RPG','Fighting'),
     description text,
     developerID int,
     total_checkpoints int,
@@ -73,4 +73,12 @@ CREATE TABLE `transaction` (
 	PRIMARY KEY (transID),
 	FOREIGN KEY (paymentID) REFERENCES `payment_info` (paymentID),
 	FOREIGN KEY (gameID) REFERENCES `game` (gameID)
+);
+
+CREATE TABLE `system_logs` (
+	logID int,
+	timestamp timestamp,
+	ip int(4),
+	status ENUM('LOG','WARNING','ERROR'),
+	PRIMARY KEY (logID)
 );
