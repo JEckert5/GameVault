@@ -10,15 +10,18 @@ CREATE TABLE `user` (
 	UNIQUE KEY (email)
 );
 
-CREATE TABLE `library` (
-	libraryID int,
-	ownerID int,
-	PRIMARY KEY (libraryID),
-	FOREIGN KEY (ownerID) REFERENCES `user` (userID)
+-- Make a trigger on insert that like checks for duplicates or something
+CREATE TABLE `friends` (
+	friend1 int,
+	friend2 int,
+	date_friended date,
+	FOREIGN KEY (friend1) REFERENCES `user` (userID),
+	FOREIGN KEY (friend2) REFERENCES `user` (userID)
 );
 
 CREATE TABLE `developer` (
     developerID int,
+	name varchar(30),
     about text,
     PRIMARY KEY (developerID)
 );
@@ -34,19 +37,19 @@ CREATE TABLE `game` (
     FOREIGN KEY (developerID) REFERENCES `developer` (developerID)
 );
 
-CREATE TABLE `owned_games` (
+CREATE TABLE `owned_game` (
     gameID int,
-    libraryID int,
+	ownerID int,
     completed_checkpoints int,
     FOREIGN KEY (gameID) REFERENCES `game` (gameID),
-    FOREIGN KEY (libraryID) REFERENCES `library` (libraryID)
+	FOREIGN KEY (ownerID) REFERENCES `user` (userID)
 );
 
 CREATE TABLE `address` (
 	id int,
 	street_addr text,
 	city text,
-	territory text, -- state is a keyword I guess lol
+	state text,
 	country text,
 	PRIMARY KEY (id)
 );
@@ -66,19 +69,33 @@ CREATE TABLE `payment_info` (
 CREATE TABLE `transaction` (
 	transID int,
 	paymentID int,
-	gameID int,
+	item_purchased int,
 	payment_time timestamp,
 	amnt_due real,
 	subscription boolean,
 	PRIMARY KEY (transID),
 	FOREIGN KEY (paymentID) REFERENCES `payment_info` (paymentID),
-	FOREIGN KEY (gameID) REFERENCES `game` (gameID)
+	FOREIGN KEY (item_purchased) REFERENCES `game` (gameID)
 );
 
-CREATE TABLE `system_logs` (
-	logID int,
-	timestamp timestamp,
-	ip int(4),
-	status ENUM('LOG','WARNING','ERROR'),
-	PRIMARY KEY (logID)
+CREATE TABLE `review` (
+	reviewID int,
+	game int,
+	user int,
+	content text,
+	title varchar(30),
+	rating ENUM('POSITIVE','NEGATIVE'),
+	PRIMARY KEY (reviewID),
+	FOREIGN KEY (game) REFERENCES `game` (gameID),
+	FOREIGN KEY (user) REFERENCES `user` (userID)
+);
+
+CREATE TABLE `comments` (
+	commentID int,
+	review int,
+	user int,
+	content text,
+	PRIMARY KEY (commentID),
+	FOREIGN KEY (review) REFERENCES `review` (reviewID),
+	FOREIGN KEY (user) REFERENCES `user` (userID)
 );
