@@ -1,5 +1,5 @@
 CREATE TABLE `user` (
-	userID int,
+	userID int AUTO_INCREMENT,
 	username varchar(25),
 	email varchar(30),
 	password varchar(30),
@@ -20,14 +20,14 @@ CREATE TABLE `friends` (
 );
 
 CREATE TABLE `developer` (
-    developerID int,
+    developerID int AUTO_INCREMENT,
 	name varchar(30),
     about text,
     PRIMARY KEY (developerID)
 );
 
 CREATE TABLE `game` (
-    gameID int,
+    gameID int AUTO_INCREMENT,
     title text,
     genre ENUM('FPS','Hack n Slash','RPG','Fighting'),
     description text,
@@ -46,28 +46,28 @@ CREATE TABLE `owned_game` (
 );
 
 CREATE TABLE `address` (
-	id int,
+	addressID int AUTO_INCREMENT,
 	street_addr text,
 	city text,
 	state text,
 	country text,
-	PRIMARY KEY (id)
+	PRIMARY KEY (addressID)
 );
 
 CREATE TABLE `payment_info` (
-	paymentID int,
+	paymentID int AUTO_INCREMENT,
 	userID int,
-	card_num int,
+	card_num varchar(16),
 	cvv int,
 	exp_date date,
 	billing_address int,
 	PRIMARY KEY (paymentID),
 	FOREIGN KEY (userID) REFERENCES `user` (userID),
-	FOREIGN KEY (billing_address) REFERENCES `address` (id)
+	FOREIGN KEY (billing_address) REFERENCES `address` (addressID)
 );
 
 CREATE TABLE `transaction` (
-	transID int,
+	transID int AUTO_INCREMENT,
 	paymentID int,
 	item_purchased int,
 	payment_time timestamp,
@@ -79,7 +79,7 @@ CREATE TABLE `transaction` (
 );
 
 CREATE TABLE `review` (
-	reviewID int,
+	reviewID int AUTO_INCREMENT,
 	game int,
 	user int,
 	content text,
@@ -91,7 +91,7 @@ CREATE TABLE `review` (
 );
 
 CREATE TABLE `comments` (
-	commentID int,
+	commentID int AUTO_INCREMENT,
 	review int,
 	user int,
 	content text,
