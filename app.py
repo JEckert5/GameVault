@@ -19,4 +19,4 @@ def main():
     cur.execute("SHOW TABLES;")
     rv = cur.fetchall()
     print(rv)
-    return render_template("index.html")
+    return render_template("index.html", tables=rv)
