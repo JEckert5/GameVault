@@ -75,7 +75,7 @@ CREATE TABLE `transaction` (
 	subscription boolean,
 	PRIMARY KEY (transID),
 	FOREIGN KEY (paymentID) REFERENCES `payment_info` (paymentID),
-	FOREIGN KEY (item_purchased) REFERENCES `game` (gameID)
+	FOREIGN KEY (gameID) REFERENCES `game` (gameID)
 );
 
 CREATE TABLE `review` (
