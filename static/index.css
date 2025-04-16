@@ -1,5 +1,197 @@
+/* Navigation Styles */
+.nav-container {
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 2rem;
+    background-color: white; /* Added for better visibility */
+}
+
+.nav-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-brand {
+    margin-right: 2rem;
+}
+
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+}
+
+.logo-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-link {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s ease; 
+}
+
+.nav-link:hover {
+    color: #007bff;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-login, .btn-signup {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease; 
+    font-weight: 500;
+}
+
+.btn-login {
+    background: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+}
+
+.btn-login:hover {
+    background: #007bff11; 
+}
+
+.btn-signup {
+    background: #007bff;
+    border: 1px solid #007bff;
+    color: white;
+}
+
+.btn-signup:hover {
+    background: #0069d9;
+    border-color: #0062cc;
+}
+
+
 .center-div {
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem; 
+    background-color: white;
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+/* Games Page Styles */ 
+.games-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.genre-section {
+    margin-bottom: 3rem;
+}
+
+.genre-title {
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.game-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+}
+
+.game-image {
+    height: 160px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-placeholder {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #999;
+}
+
+.game-info {
+    padding: 1.2rem;
+}
+
+.game-info h3 {
+    margin: 0 0 0.5rem;
+    color: #333;
+}
+
+.developer {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0 0 0.8rem;
+}
+
+.description {
+    color: #444;
+    font-size: 0.95rem;
+    margin: 0 0 1rem;
+}
+
+.game-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 1.2rem;
+}
+
+.view-button {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.view-button:hover {
+    background: #0069d9;
 }
