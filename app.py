@@ -20,3 +20,27 @@ def main():
     rv = cur.fetchall()
     print(rv)
     return render_template("index.html", tables=rv)
+
+@app.route('/games')
+def games():
+        cur = mysql.connection.cursor()
+        
+        cur.execute('''
+            SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints,
+                   d.name as developer_name
+            FROM game g
+            JOIN developer d ON g.developerID = d.developerID
+            ORDER BY g.genre, g.title
+        ''')
+        games = cur.fetchall()
+        # Organize by genre
+        games_by_genre = {}
+        for game in games:
+            genre = game['genre']
+            if genre not in games_by_genre:
+                games_by_genre[genre] = []
+            games_by_genre[genre].append(game)
+            
+        return render_template('games.html', games_by_genre=games_by_genre)
+
+app.run(host='localhost', port=5000)
