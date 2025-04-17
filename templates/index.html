@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>GameVault</title>
+    <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+    <link href="{{url_for('static',filename='favicon.ico')}}" rel="icon" type="image/x-icon">
+</head>
+<body>
+    <!-- <div class="nav-container">
+        <header class="nav-header">
+            <div class="nav-brand">
+                <a href="/" class="nav-logo">
+                    <img src="{{ url_for('static', filename='favicon.ico') }}" class="logo-icon" alt="Logo">
+                    GameVault
+                </a>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link">Home</a></li>
+                <li><a href="/games" class="nav-link">Games</a></li>
+            </ul>
+
+            <div class="nav-buttons">
+                {% if session.loggedin %}
+                <span class="nav-username">{{ session.username }}</span>
+                <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                <a href="{{ url_for('register') }}" class="nav-link">Register</a>
+                {% endif %}
+            </div>
+        </header>
+    </div> -->
+
+    {% include 'navbar.html' %}
+
+    <div class="center-div">
+        {% for d in tables %}
+            <p>{{d}}</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
