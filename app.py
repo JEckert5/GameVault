@@ -8,12 +8,14 @@ import json
 
 app = Flask(__name__)
 
+app.secret_key = 'NEED TO CHANGE TO SOMETHING ACTUALLY SECURE'
+
 # Maybe move password to .env file idk
 app.config["MYSQL_HOST"] = "dbdev.cs.kent.edu"
 app.config["MYSQL_USER"] = "nbooth5"
 app.config["MYSQL_PASSWORD"] = "bi9tqNM6"
 app.config["MYSQL_DB"] = "nbooth5"
-app.config["MYSQL_UNIX_SOCKET"] = "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
+# app.config["MYSQL_UNIX_SOCKET"] = "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
 
 mysql = MySQL(app)
 
@@ -91,16 +93,16 @@ def register():
             hashed_password = generate_password_hash(password)
             
             # Create new user
+            user_id = cursor.lastrowid
             cursor.execute('''
-                INSERT INTO user (username, email, password, status, bio)
-                VALUES (%s, %s, %s, 'ONLINE', '')
-            ''', (username, email, hashed_password))
+                INSERT INTO user (userID, username, email, password, status, bio)
+                VALUES (%s, %s, %s, %s, 'ONLINE', '')
+            ''', (user_id, username, email, hashed_password))
             mysql.connection.commit()
             
             # Create empty profile
-            user_id = cursor.lastrowid
-            cursor.execute('INSERT INTO user (userID) VALUES (%s)', (user_id,))
-            mysql.connection.commit()
+            """ cursor.execute('INSERT INTO user (userID) VALUES (%s)', (user_id,))
+            mysql.connection.commit() """
             
             flash('Registration successful! Please login.', 'success')
             return redirect(url_for('login'))
@@ -141,7 +143,7 @@ def games():
         # Organize by genre
         games_by_genre = {}
         for game in games:
-            genre = game['genre']
+            genre = game[2]
             if genre not in games_by_genre:
                 games_by_genre[genre] = []
             games_by_genre[genre].append(game)

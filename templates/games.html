@@ -20,16 +20,16 @@
                 <div class="game-card">
                     <div class="game-image">
                         <!-- Placeholder for game image -->
-                        <div class="image-placeholder">{{ game.title[0] }}</div>
+                        <div class="image-placeholder">{{ game[1] }}</div>
                     </div>
                     <div class="game-info">
-                        <h3>{{ game.title }}</h3>
-                        <p class="developer">{{ game.developer_name }}</p>
-                        <p class="description">{{ game.description[:100] }}...</p>
+                        <h3>{{ game[1] }}</h3>
+                        <p class="developer">{{ game[6] }}</p>
+                        <p class="description">{{ game[3] }}...</p>
                         <div class="game-meta">
-                            <span class="checkpoints">{{ game.total_checkpoints }} checkpoints</span>
+                            <span class="checkpoints">{{ game[5] }} checkpoints</span>
                         </div>
-                        <a href="/game/{{ game.gameID }}" class="view-button">View Details</a>
+                        <a href="/game/{{ game[0] }}" class="view-button">View Details</a>
                     </div>
                 </div>
                 {% endfor %}
