@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GameVault - About {{dev[0]}}</title>
+    <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet">
+</head>
+
+<body>
+{% include 'navbar.html' %}
+<div class="center-div">
+    <h1>{{dev[0]}}</h1>
+    <p>{{dev[1]}}</p>
+
+    <div class="left-div ">
+        <!--List Games they have made-->
+        {% for game in games %}
+
+        <a class="developer" href="/games/{{game[0]}}">{{game[1]}}</a>
+
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

@@ -8,7 +8,7 @@ import json
 
 app = Flask(__name__)
 
-app.secret_key = 'NEED TO CHANGE TO SOMETHING ACTUALLY SECURE'
+app.secret_key = "NEED TO CHANGE TO SOMETHING ACTUALLY SECURE"
 
 # Maybe move password to .env file idk
 app.config["MYSQL_HOST"] = "dbdev.cs.kent.edu"
@@ -28,126 +28,194 @@ def main():
     print(rv)
     return render_template("index.html", tables=rv)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if 'loggedin' in session:
-        return redirect(url_for('index'))
 
-    msg = ''
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
-        username = request.form['username']
-        password = request.form['password']
-        
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if "loggedin" in session:
+        return redirect(url_for("index"))
+
+    msg = ""
+    if (
+        request.method == "POST"
+        and "username" in request.form
+        and "password" in request.form
+    ):
+        username = request.form["username"]
+        password = request.form["password"]
+
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM user WHERE username = %s', (username,))
+        cursor.execute("SELECT * FROM user WHERE username = %s", (username,))
         user = cursor.fetchone()
-        
+
         # Check if user exists and password is correct
         if user:
-            if check_password_hash(user['password'], password):
-                session['loggedin'] = True
-                session['userID'] = user['userID']
-                session['username'] = user['username']
-                session['email'] = user['email']
-                session['status'] = user['status']
-                
+            if check_password_hash(user["password"], password):
+                session["loggedin"] = True
+                session["userID"] = user["userID"]
+                session["username"] = user["username"]
+                session["email"] = user["email"]
+                session["status"] = user["status"]
+
                 # Update user status to ONLINE
-                cursor.execute('UPDATE user SET status = "ONLINE" WHERE userID = %s', (user['userID'],))
+                cursor.execute(
+                    'UPDATE user SET status = "ONLINE" WHERE userID = %s',
+                    (user["userID"],),
+                )
                 mysql.connection.commit()
-                
-                flash('Login successful!', 'success')
-                return redirect(url_for('index'))
+
+                flash("Login successful!", "success")
+                return redirect(url_for("index"))
             else:
-                msg = 'Incorrect password!'
+                msg = "Incorrect password!"
         else:
-            msg = 'Username not found!'
-    
-    return render_template('login.html', msg=msg)
+            msg = "Username not found!"
+
+    return render_template("login.html", msg=msg)
+
 
 # Register Route
-@app.route('/register', methods=['GET', 'POST'])
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    if 'loggedin' in session:
-        return redirect(url_for('index'))
+    if "loggedin" in session:
+        return redirect(url_for("index"))
 
-    msg = ''
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
-        
+    msg = ""
+    if (
+        request.method == "POST"
+        and "username" in request.form
+        and "password" in request.form
+        and "email" in request.form
+    ):
+        username = request.form["username"]
+        password = request.form["password"]
+        email = request.form["email"]
+
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        
+
         # Check if account exists
-        cursor.execute('SELECT * FROM user WHERE username = %s OR email = %s', (username, email))
+        cursor.execute(
+            "SELECT * FROM user WHERE username = %s OR email = %s", (username, email)
+        )
         account = cursor.fetchone()
-        
+
         if account:
-            msg = 'Account already exists!'
-        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Invalid email address!'
-        elif not re.match(r'^[A-Za-z0-9_]+$', username):
-            msg = 'Username must contain only letters, numbers and underscores!'
+            msg = "Account already exists!"
+        elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            msg = "Invalid email address!"
+        elif not re.match(r"^[A-Za-z0-9_]+$", username):
+            msg = "Username must contain only letters, numbers and underscores!"
         else:
             # Hash the password
             hashed_password = generate_password_hash(password)
-            
+
             # Create new user
             user_id = cursor.lastrowid
-            cursor.execute('''
+            cursor.execute(
+                """
                 INSERT INTO user (userID, username, email, password, status, bio)
                 VALUES (%s, %s, %s, %s, 'ONLINE', '')
-            ''', (user_id, username, email, hashed_password))
+            """,
+                (user_id, username, email, hashed_password),
+            )
             mysql.connection.commit()
-            
+
             # Create empty profile
             """ cursor.execute('INSERT INTO user (userID) VALUES (%s)', (user_id,))
             mysql.connection.commit() """
-            
-            flash('Registration successful! Please login.', 'success')
-            return redirect(url_for('login'))
-    
-    return render_template('register.html', msg=msg)
+
+            flash("Registration successful! Please login.", "success")
+            return redirect(url_for("login"))
+
+    return render_template("register.html", msg=msg)
+
 
 # Logout Route
-@app.route('/logout')
+@app.route("/logout")
 def logout():
-    if 'loggedin' in session:
+    if "loggedin" in session:
         # Update status to OFFLINE
         cursor = mysql.connection.cursor()
-        cursor.execute('UPDATE user SET status = "OFFLINE" WHERE userID = %s', (session['userID'],))
+        cursor.execute(
+            'UPDATE user SET status = "OFFLINE" WHERE userID = %s', (session["userID"],)
+        )
         mysql.connection.commit()
-        
-        # Clear session
-        session.pop('loggedin', None)
-        session.pop('userID', None)
-        session.pop('username', None)
-        session.pop('email', None)
-        session.pop('status', None)
-        
-        flash('You have been logged out.', 'info')
-    return redirect(url_for('index'))
 
-@app.route('/games')
+        # Clear session
+        session.pop("loggedin", None)
+        session.pop("userID", None)
+        session.pop("username", None)
+        session.pop("email", None)
+        session.pop("status", None)
+
+        flash("You have been logged out.", "info")
+    return redirect(url_for("index"))
+
+
+@app.route("/games")
 def games():
-        cur = mysql.connection.cursor()
-        
-        cur.execute('''
+    cur = mysql.connection.cursor()
+
+    cur.execute(
+        """
             SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints,
-                   d.name as developer_name
+                   d.name as developer_name, d.developerID
             FROM game g
             JOIN developer d ON g.developerID = d.developerID
             ORDER BY g.genre, g.title
-        ''')
-        games = cur.fetchall()
-        # Organize by genre
-        games_by_genre = {}
-        for game in games:
-            genre = game[2]
-            if genre not in games_by_genre:
-                games_by_genre[genre] = []
-            games_by_genre[genre].append(game)
-            
-        return render_template('games.html', games_by_genre=games_by_genre)
+        """
+    )
+    games = cur.fetchall()
+    # Organize by genre
+    games_by_genre = {}
+    for game in games:
+        genre = game[2]
+        if genre not in games_by_genre:
+            games_by_genre[genre] = []
+        games_by_genre[genre].append(game)
 
-app.run(host='localhost', port=5000)
+    cur.close()
+
+    return render_template("games.html", games_by_genre=games_by_genre)
+
+
+@app.route("/games/<int:id>")
+def game(id: int):
+    cur = mysql.connection.cursor()
+    cur.execute(
+        f"""
+            SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
+            FROM game g 
+            JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
+        """
+    )
+
+    game = cur.fetchall()
+
+    cur.close()
+
+    return render_template("games.html", game=game[0])
+
+
+@app.route("/developer_about/<int:id>")
+def developer(id: int):
+    cur = mysql.connection.cursor()
+
+    cur.execute(
+        f"""
+            SELECT d.name, d.about FROM developer d WHERE d.developerID = {id};
+        """
+    )
+
+    dev = cur.fetchall()
+
+    cur.execute(f"SELECT * FROM game WHERE developerID = {id};")
+
+    games = cur.fetchall()
+
+    cur.close()
+
+    return render_template("developer_about.html", dev=dev[0], games=games)
+
+
+if __name__ == "__main__":
+    app.run(host="localhost", port=5000)

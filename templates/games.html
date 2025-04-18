@@ -8,6 +8,8 @@
 <body>
     {% include 'navbar.html' %}
     
+    <!--Game List-->
+    {% if games_by_genre %}
     <div class="games-container">
         <h1>Browse Games</h1>
         
@@ -24,12 +26,12 @@
                     </div>
                     <div class="game-info">
                         <h3>{{ game[1] }}</h3>
-                        <p class="developer">{{ game[6] }}</p>
+                        <a class="developer" href="/developer_about/{{game[6]}}">{{ game[5] }}</a>
                         <p class="description">{{ game[3] }}...</p>
                         <div class="game-meta">
-                            <span class="checkpoints">{{ game[5] }} checkpoints</span>
+                            <span class="checkpoints">{{ game[4] }} checkpoints</span>
                         </div>
-                        <a href="/game/{{ game[0] }}" class="view-button">View Details</a>
+                        <a href="/games/{{ game[0] }}" class="view-button">View Details</a>
                     </div>
                 </div>
                 {% endfor %}
@@ -37,5 +39,24 @@
         </section>
         {% endfor %}
     </div>
+
+    <!--Individual game detail view-->
+    {% elif game %}
+    <p>{{game}}</p>
+    <div class="game-card">
+        <div class="game-image">
+            <!-- Placeholder for game image -->
+            <div class="image-placeholder">{{ game[1] }}</div>
+        </div>
+        <div class="game-info">
+            <h3>{{ game[1] }}</h3>
+            <a class="developer" href="/developer_about/{{game[5]}}">{{ game[6] }}</a>
+            <p class="description">{{ game[3] }}</p>
+            <div class="game-meta">
+                <span class="checkpoints">{{ game[4] }} checkpoints</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </body>
 </html>
