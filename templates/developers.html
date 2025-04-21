@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GameVault</title>
+    <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+    <link href="{{url_for('static',filename='favicon.ico')}}" rel="icon" type="image/x-icon">
+</head>
+<body>
+{% include "navbar.html" %}
+<div class="games-container">
+
+<div class="games-grid">
+{% for d in data %}
+        <p>{{d}}</p>
+{% endfor %}
+</div>
+    
+</div>
+</body>
+</html>

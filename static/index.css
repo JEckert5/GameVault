@@ -124,6 +124,26 @@
     width: max-content;
 }
 
+.library-item {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    column-gap: 0.5rem;
+    border: #333;
+    margin: 0 auto;
+    border-style: solid;
+    border-width: 0.25rem;
+    border-radius: 0.25rem;
+}
+
+.library-item:hover {
+    cursor: pointer;
+}
+
+.library-text {
+    margin: 0 auto;
+}
+
 /* Games Page Styles */
 .games-container {
     max-width: 1200px;

@@ -1,7 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>GameVault</title>
+    <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+    <link href="{{url_for('static',filename='favicon.ico')}}" rel="icon" type="image/x-icon">
+</head>
+<body>
+    {% include 'navbar.html' %}
 
-
-{% block content %}
-<div class="auth-container">
+    <div class="auth-container">
     <h2>Login</h2>
     {% if msg %}
         <div class="alert alert-danger">{{ msg }}</div>
@@ -19,4 +27,5 @@
     </form>
     <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
 </div>
-{% endblock %}
+</body>
+</html>

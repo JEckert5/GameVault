@@ -23,7 +23,9 @@ mysql = MySQL(app)
 @app.route("/")
 def main():
     cur = mysql.connection.cursor()
-    cur.execute("SHOW TABLES;")
+    cur.execute(
+        "SELECT * FROM game g JOIN developer d ON g.developerID = d.developerID;"
+    )
     rv = cur.fetchall()
     print(rv)
     return render_template("index.html", tables=rv)
@@ -64,7 +66,7 @@ def login():
                 mysql.connection.commit()
 
                 flash("Login successful!", "success")
-                return redirect(url_for("index"))
+                return redirect(url_for("main"))
             else:
                 msg = "Incorrect password!"
         else:
@@ -148,7 +150,7 @@ def logout():
         session.pop("status", None)
 
         flash("You have been logged out.", "info")
-    return redirect(url_for("index"))
+    return redirect(url_for("main"))
 
 
 @app.route("/games")
@@ -196,8 +198,23 @@ def game(id: int):
     return render_template("games.html", game=game[0])
 
 
+@app.route("/developers")
+def developers():
+    cur = mysql.connection.cursor()
+    cur.execute(
+        """
+            SELECT d.name, d.about, d.developerID, g.title, g.gameID FROM developer d JOIN game g ON d.developerID = g.developerID;
+        """
+    )
+    data = cur.fetchall()
+
+    cur.close()
+
+    return render_template("developers.html", data=data)
+
+
 @app.route("/developer_about/<int:id>")
-def developer(id: int):
+def developer_about(id: int):
     cur = mysql.connection.cursor()
 
     cur.execute(
@@ -215,6 +232,29 @@ def developer(id: int):
     cur.close()
 
     return render_template("developer_about.html", dev=dev[0], games=games)
+
+
+@app.route("/library")
+def library():
+    if "loggedin" in session:
+        cur = mysql.connection.cursor()
+
+        cur.execute(
+            f"""
+                SELECT  g.title, o.completed_checkpoints, g.total_checkpoints
+                FROM owned_game o JOIN game g
+                ON o.ownerID = {session["userID"]} AND o.gameID = g.gameID;
+            """
+        )
+
+        data = cur.fetchall()
+
+        cur.close()
+
+        return render_template("library.html", user=data)
+
+    else:
+        return render_template("library.html", user=False)
 
 
 if __name__ == "__main__":
