@@ -1,0 +1,52 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GameVault - Add Game</title>
+    <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+    <link href="{{url_for('static',filename='favicon.ico')}}" rel="icon" type="image/x-icon">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    {% if msg %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endif %}
+
+    {% if user == False %}
+        <p>You are not logged in!</p>
+    {% elif dev == 0 %}
+        <p>You are not a developer!</p>
+    {% else %}
+        <h2>Add a Game</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="desc" required>
+            </div>
+
+            <div class="form-group">
+                <label>Genre</label>
+                <select name="genre" required>
+                    <option value="" selected disabled>Choose...</option>
+                    {% for g in genres %}
+                        <option value="{{g}}">{{g}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Number of Checkpoints</label>
+                <input type="number" name="checkpoints" min=0 max=99999999999 required>
+            </div>
+
+            <div class="form-group">
+                <label>Price</label>
+                <input type="number" name="price" min=0 max=99999999999 required>
+            </div>
+            <button type="submit" class="btn-add">Submit</button>
+    {% endif %}
+</body>
+</html>

@@ -37,6 +37,8 @@ def main():
 
     featuredGames = sample(cur.fetchall(), 4)
 
+    # featuredGames = sample(featuredGames, 4)
+
     cur.execute(
         """
             SELECT developerID, name, about FROM developer;
@@ -44,6 +46,8 @@ def main():
     )
 
     featuredDevelopers = sample(cur.fetchall(), 4)
+
+    # featuredDevelopers = sample(featuredDevelopers, 4)
 
     cur.close()
 
@@ -179,7 +183,7 @@ def games():
     cur.execute(
         """
             SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints,
-                  d.name as developer_name, d.developerID
+                   d.name as developer_name, d.developerID
             FROM game g
             JOIN developer d ON g.developerID = d.developerID
             ORDER BY g.genre, g.title
@@ -200,57 +204,22 @@ def games():
     return render_template("games.html", games_by_genre=games_by_genre)
 
 
-@app.route("/games/<int:id>", methods=["GET", "POST"])
+@app.route("/games/<int:id>")
 def game(id: int):
-    if request.method == "GET":
-        cur = mysql.connection.cursor()
-        cur.execute(
-            f"""
-                SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
-                FROM game g 
-                JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
-            """
-        )
+    cur = mysql.connection.cursor()
+    cur.execute(
+        f"""
+            SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
+            FROM game g 
+            JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
+        """
+    )
 
-        game = cur.fetchall()
+    game = cur.fetchall()
 
-        cur.execute(
-            f"""
-                SELECT u.username, title, content, rating FROM review r JOIN user u ON r.gameID = {id} AND u.userID = r.userID;
-            """
-        )
+    cur.close()
 
-        reviews = cur.fetchall()
-
-        cur.close()
-
-        return render_template("games.html", game=game[0], reviews=reviews)
-    else:
-        review = request.form.get("review-content")
-        title = request.form.get("title-input")
-        rating = request.form.get("rating")
-
-        print(review, title)
-
-        cur = mysql.connection.cursor()
-
-        try:
-            cur.execute(
-                f"""
-                    INSERT INTO review (gameID, userID, content, title, rating) VALUES
-                    (
-                        {id}, {session["userID"]}, "{review}", "{title}", "{rating}"
-                    );
-                """
-            )
-        except:
-            pass
-
-        mysql.connection.commit()
-
-        cur.close()
-
-        return redirect(f"/games/{id}")
+    return render_template("games.html", game=game[0])
 
 
 @app.route("/developers")
@@ -307,9 +276,72 @@ def library():
         cur.close()
 
         return render_template("library.html", games=data)
-
     else:
         return render_template("library.html", user=False)
+
+@app.route("/add-game", methods=['GET', 'POST'])
+def add_game():
+    if "loggedin" in session:
+        if request.method == 'GET':
+            cur = mysql.connection.cursor()
+
+            cur.execute("SHOW COLUMNS FROM game LIKE 'genre';")
+            data = cur.fetchall()[0][1]
+            data = data.replace("enum", "")
+            data = literal_eval(data)
+
+            cur.execute("SELECT developer FROM user WHERE userID=%s;", [session['userID']])
+            dev = cur.fetchall()[0][0]
+
+            cur.close()
+            return render_template('add_game.html', genres=data, dev=dev)
+        elif request.method == 'POST':
+            cur = mysql.connection.cursor()
+            addTitle = request.form['name']
+            addDesc = request.form['desc']
+            addGenre = request.form['genre']
+            addCP = request.form['checkpoints']
+            addPrice = request.form['price']
+
+            cur.execute("SELECT MAX(gameID) FROM game")
+            addGID = cur.fetchone()[0] + 1
+            addDID = session['userID']
+            addDName = session['username']
+
+            cur.execute("SELECT * FROM developer WHERE developerID=%s", [addDID])
+            match = cur.fetchone()
+
+            if not match:
+                cur.execute("INSERT INTO developer(developerID, name) VALUES (%s, %s)", [addDID, addDName])
+                mysql.connection.commit()
+
+            #add to game table and user's library
+            cur.execute("""
+                INSERT INTO game(gameID, title, genre, description, total_checkpoints, developerID, developer_name, price)
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
+            """, [addGID, addTitle, addGenre, addDesc, addCP, addDID, addDName, addPrice])
+            mysql.connection.commit()
+
+            cur.execute("INSERT INTO owned_game(gameID, ownerID, completed_checkpoints) VALUES (%s, %s, 0)", [addGID, addDID])
+            mysql.connection.commit()
+            message = "Successfully added!"
+
+            #readying to reload the page
+            cur.execute("SHOW COLUMNS FROM game LIKE 'genre';")
+            data = cur.fetchall()[0][1]
+            data = data.replace("enum", "")
+            data = literal_eval(data)
+
+            cur.execute("SELECT developer FROM user WHERE userID=%s;", [session['userID']])
+            dev = cur.fetchall()[0][0]
+
+            cur.close()
+
+            return render_template('add_game.html', genres=data, dev=dev, msg=message)
+        else:
+            print("REQUEST TYPE ERROR")
+    else:
+        return render_template('add_game.html', user=False)
 
 
 if __name__ == "__main__":
