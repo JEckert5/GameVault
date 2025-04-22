@@ -13,11 +13,12 @@
             <li><a href="/games" class="nav-link">Games</a></li>
             <li><a href="/developers" class="nav-link">Developers</a></li>
             <li><a href="/library" class="nav-link">Library</a></li>
+            <li><a href="/add-game" class="nav-link">Add a Game</a></li>
         </ul>
 
         <div class="nav-buttons">
             {% if session.loggedin %}
-            <span class="nav-link">{{ session.username }}</span>
+            <span class="nav-username">{{ session.username }}</span>
             <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
             {% else %}
             <a href="{{ url_for('login') }}" class="nav-link">Login</a>
