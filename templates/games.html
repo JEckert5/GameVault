@@ -26,12 +26,14 @@
                     </div>
                     <div class="game-info">
                         <h3>{{ game[1] }}</h3>
-                        <a class="developer" href="/developer_about/{{game[6]}}">{{ game[5] }}</a>
+                        <a class="developer" href="/developer_about/{{game[6]}}">{{ game[6] }}</a>
                         <p class="description">{{ game[3] }}...</p>
                         <div class="game-meta">
                             <span class="checkpoints">{{ game[4] }} checkpoints</span>
+                            <span class="$"> ${{ game[5] }} </span>
                         </div>
                         <a href="/games/{{ game[0] }}" class="view-button">View Details</a>
+                        <a href="{{ url_for('add_to_cart', game_id=game[0]) }}" class="add-button">Add to Cart </a>
                     </div>
                 </div>
                 {% endfor %}
@@ -49,10 +51,12 @@
         </div>
         <div class="game-info">
             <h3>{{ game[1] }}</h3>
-            <a class="developer" href="/developer_about/{{game[5]}}">{{ game[6] }}</a>
+            <a class="developer" href="/developer_about/{{game[6]}}">{{ game[6] }}</a>
             <p class="description">{{ game[3] }}</p>
             <div class="game-meta">
                 <span class="checkpoints">{{ game[4] }} checkpoints</span>
+                <span class="$"> ${{ game[5] }} </span>
+                <a href="{{ url_for('add_to_cart', game_id=game[0]) }}" class="add-button">Add to Cart </a>
             </div>
         </div>
     </div>

@@ -1,0 +1,72 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="checkout-container">
+  <div class="checkout-details">
+    <h1>Checkout</h1>
+    <table class="checkout-table">
+      <thead>
+        <tr><th>Title</th><th>Price</th></tr>
+      </thead>
+      <tbody>
+        {% for g in games %}
+        <tr>
+          <td>{{ g[1] }}</td>
+          <td>${{ '%.2f'|format(g[2]) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td><strong>Total</strong></td>
+          <td><strong>${{ '%.2f'|format(total) }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <form method="post" class="checkout-form">
+      <div class="form-group">
+        <label for="cc_number">Credit Card Number</label>
+        <input type="text" name="cc_number" id="cc_number" maxlength="16" placeholder="1234123412341234" required>
+      </div>
+      <div class="form-group">
+        <label for="cvv">CVV</label>
+        <input type="text" name="cvv" id="cvv" maxlength="4" placeholder="123" required>
+      </div>
+      <div class="form-group-inline">
+        <div class="form-group">
+          <label for="exp_month">Exp. Month (MM)</label>
+          <input type="text" name="exp_month" id="exp_month" maxlength="2" placeholder="04" required>
+        </div>
+        <div class="form-group">
+          <label for="exp_year">Exp. Year (YYYY)</label>
+          <input type="text" name="exp_year" id="exp_year" maxlength="4" placeholder="2027" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="billing_address">Billing Address ID</label>
+        <input type="text" name="street" placeholder="Street Address" required>
+        <input type="text" name="city" placeholder="City" required>
+        <input type="text" name="state" placeholder="State" required>
+        <input type="text" name="country" placeholder="Country" required>
+      </div>
+      <button type="submit" class="pay-button">Pay ${{ '%.2f'|format(total) }}</button>
+    </form>
+  </div>
+</div>
+
+<style>
+.checkout-container { max-width: 700px; margin: 2rem auto; padding: 1rem; }
+.checkout-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+.checkout-table th, .checkout-table td { border-bottom: 1px solid #ddd; padding: 0.8rem; text-align: left; }
+.checkout-table tfoot td { border-top: 2px solid #333; }
+.checkout-form { display: flex; flex-direction: column; gap: 1rem; }
+.form-group, .form-group-inline { display: flex; flex-direction: column; }
+.form-group-inline { flex-direction: row; gap: 1rem; }
+.form-group label { margin-bottom: 0.4rem; font-weight: 500; }
+.form-group input { padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; }
+.pay-button { padding: 0.8rem 1.2rem; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+.pay-button:hover { background: #0069d9; }
+</style>
+
+{% endblock %}
