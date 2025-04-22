@@ -6,6 +6,7 @@ import MySQLdb.cursors
 from datetime import datetime
 import json
 from random import sample
+from ast import literal_eval
 
 
 
@@ -280,6 +281,70 @@ def library():
 
     else:
         return render_template("library.html", user=False)
+
+@app.route("/add-game", methods=['GET', 'POST'])
+def add_game():
+    if "loggedin" in session:
+        if request.method == 'GET':
+            cur = mysql.connection.cursor()
+
+            cur.execute("SHOW COLUMNS FROM game LIKE 'genre';")
+            data = cur.fetchall()[0][1]
+            data = data.replace("enum", "")
+            data = literal_eval(data)
+
+            cur.execute("SELECT developer FROM user WHERE userID=%s;", [session['userID']])
+            dev = cur.fetchall()[0][0]
+
+            cur.close()
+            return render_template('add_game.html', genres=data, dev=dev)
+        elif request.method == 'POST':
+            cur = mysql.connection.cursor()
+            addTitle = request.form['name']
+            addDesc = request.form['desc']
+            addGenre = request.form['genre']
+            addCP = request.form['checkpoints']
+            addPrice = request.form['price']
+
+            cur.execute("SELECT MAX(gameID) FROM game")
+            addGID = cur.fetchone()[0] + 1
+            addDID = session['userID']
+            addDName = session['username']
+
+            cur.execute("SELECT * FROM developer WHERE developerID=%s", [addDID])
+            match = cur.fetchone()
+
+            if not match:
+                cur.execute("INSERT INTO developer(developerID, name) VALUES (%s, %s)", [addDID, addDName])
+                mysql.connection.commit()
+
+            #add to game table and user's library
+            cur.execute("""
+                INSERT INTO game(gameID, title, genre, description, total_checkpoints, developerID, developer_name, price)
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
+            """, [addGID, addTitle, addGenre, addDesc, addCP, addDID, addDName, addPrice])
+            mysql.connection.commit()
+
+            cur.execute("INSERT INTO owned_game(gameID, ownerID, completed_checkpoints) VALUES (%s, %s, 0)", [addGID, addDID])
+            mysql.connection.commit()
+            message = "Successfully added!"
+
+            #readying to reload the page
+            cur.execute("SHOW COLUMNS FROM game LIKE 'genre';")
+            data = cur.fetchall()[0][1]
+            data = data.replace("enum", "")
+            data = literal_eval(data)
+
+            cur.execute("SELECT developer FROM user WHERE userID=%s;", [session['userID']])
+            dev = cur.fetchall()[0][0]
+
+            cur.close()
+
+            return render_template('add_game.html', genres=data, dev=dev, msg=message)
+        else:
+            print("REQUEST TYPE ERROR")
+    else:
+        return render_template('add_game.html', user=False)
 
 
 @app.route('/add_to_cart/<int:game_id>')

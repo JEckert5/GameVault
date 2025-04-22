@@ -9,12 +9,14 @@
 <body>
     {% include "navbar.html" %}
 
-    {% if not user %}
+    {% if user == False %}
     <p>You are not logged in!</p>
+    {% elif not games %}
+    <p>You have no games!</p>
     {% else %}
     <div class="left-div">
     <div>
-    {% for game in games%}
+    {% for game in games %}
         <div class="library-item">
             <p class="library-text">{{game[0]}}</p>
             <p class="library-text">Checkpoints: {{game[1]}}/{{game[2]}}</p>
