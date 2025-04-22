@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <title>GameVault - Browse Games</title>
     <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet">
+
+
+    <script>
+        function reviewbox() {
+            var f = document.getElementById("review-input")
+
+            if (f.style.display === "none") {
+                f.style.display = "block";
+            } else {
+                f.style.display = "none";
+            }
+
+            console.log("balls")
+        }
+    </script>
 </head>
 <body>
     {% include 'navbar.html' %}
@@ -42,7 +57,7 @@
 
     <!--Individual game detail view-->
     {% elif game %}
-    <div class="game-card">
+    <div class="game-card-no-hover">
         <div class="game-image">
             <!-- Placeholder for game image -->
             <div class="image-placeholder">{{ game[1] }}</div>
@@ -54,6 +69,31 @@
             <div class="game-meta">
                 <span class="checkpoints">{{ game[4] }} checkpoints</span>
             </div>
+        </div>
+
+        <div>
+
+        <button class="btn-login" style="width: 25%;" onclick="reviewbox()">Leave Review</button>
+        <form id="review-input" style="display: none;" method="POST">
+            <textarea name="review-content"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+
+        {% for review in reviews %}
+        <div class="game-card-no-hover">
+        <div class="center-row-div-unstyle">
+            <h3>{{review[1]}}</h3>
+
+            {% if review[3] == "POSITIVE"%}
+            <h3 style="color:green">{{review[3]}}</h3>
+            {% else %}
+            <h3 style="color:red">{{review[3]}}</h3>
+            {% endif %}
+
+        </div>
+            <p>{{review[2]}}</p>
+        </div>
+        {% endfor %}
         </div>
     </div>
     {% endif %}

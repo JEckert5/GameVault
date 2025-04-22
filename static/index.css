@@ -116,6 +116,13 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.center-row-div-unstyle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 10px;
+}
+
 .left-div {
     display: flex;
     flex-direction: column;
@@ -169,6 +176,14 @@
 }
 
 .game-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.game-card-no-hover {
     background: white;
     border-radius: 8px;
     overflow: hidden;

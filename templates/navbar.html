@@ -17,7 +17,7 @@
 
         <div class="nav-buttons">
             {% if session.loggedin %}
-            <span class="nav-username">{{ session.username }}</span>
+            <span class="nav-link">{{ session.username }}</span>
             <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
             {% else %}
             <a href="{{ url_for('login') }}" class="nav-link">Login</a>
