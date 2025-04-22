@@ -10,18 +10,24 @@
 {% include "navbar.html" %}
 <div class="games-container">
 
-<div class="games-grid">
-        {% for dev in data %}
-        <div class="game-card">
-            <div class="game-info">
-                <h3>{{dev[1]}}</h3>
-                <p class="description">{{dev[2]}}</p>
-                <a href="/developer_about/{{dev[0]}}" class="view-button">More</a>
+<!-- <div class="center-div">  # might add back-->
+    <div class="games-grid">
+            {% for dev in data %}
+            <div class="game-image">
+                <!-- Placeholder for game image -->
+                <img src="{{ url_for('static', filename='images/' ~ dev[1] ~ '.webp') }}" alt="{{ dev[1] }} image" />
             </div>
+            <div class="game-card">
+                <div class="game-info">
+                    <h3>{{dev[1]}}</h3>
+                    <p class="description">{{dev[2]}}</p>
+                    <a href="/developer_about/{{dev[0]}}" class="view-button">More</a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        
     </div>
-    
-</div>
+<!-- </div> # might add back-->
 </body>
 </html>

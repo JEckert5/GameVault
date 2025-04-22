@@ -281,6 +281,28 @@ def library():
 
     else:
         return render_template("library.html", user=False)
+    
+@app.route("/friends")
+def friends():
+   
+        cur = mysql.connection.cursor()
+
+        cur.execute(
+            """
+                SELECT friendID
+                FROM friends
+                where userID = 1
+            """
+        )
+
+        data = cur.fetchall()
+
+        cur.close()
+
+        return render_template("friends.html", data=data)
+   
+
+    
 
 @app.route("/add-game", methods=['GET', 'POST'])
 def add_game():
