@@ -33,6 +33,7 @@ CREATE TABLE `game` (
     description text,
     developerID int,
     total_checkpoints int,
+	price int,
     PRIMARY KEY (gameID),
     FOREIGN KEY (developerID) REFERENCES `developer` (developerID)
 );
@@ -98,4 +99,23 @@ CREATE TABLE `comments` (
 	PRIMARY KEY (commentID),
 	FOREIGN KEY (review) REFERENCES `review` (reviewID),
 	FOREIGN KEY (user) REFERENCES `user` (userID)
+);
+
+CREATE TABLE `orders` (
+    orderID        INT AUTO_INCREMENT,
+    userID         INT            NOT NULL,
+    total          DECIMAL(10,2)  NOT NULL,
+    order_date     DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY    (orderID),
+    FOREIGN KEY    (userID) REFERENCES `user` (userID)
+);
+
+CREATE TABLE `order_items` (
+    orderItemID    INT AUTO_INCREMENT,
+    orderID        INT            NOT NULL,
+    gameID         INT            NOT NULL,
+    price          DECIMAL(10,2)  NOT NULL,
+    PRIMARY KEY    (orderItemID),
+    FOREIGN KEY    (orderID) REFERENCES `orders` (orderID),
+    FOREIGN KEY    (gameID ) REFERENCES `game`   (gameID)
 );

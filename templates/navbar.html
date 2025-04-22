@@ -1,30 +1,38 @@
 {% block content %}
 <div class="nav-container">
-    <header class="nav-header">
-        <div class="nav-brand">
-            <a href="/" class="nav-logo">
-                <img src="{{ url_for('static', filename='favicon.ico') }}" class="logo-icon" alt="Logo">
-                GameVault
-            </a>
-        </div>
+  <header class="nav-header">
+    <div class="nav-brand">
+      <a href="/" class="nav-logo">
+        <img src="{{ url_for('static', filename='favicon.ico') }}" class="logo-icon" alt="Logo">
+        GameVault
+      </a>
+    </div>
 
-        <ul class="nav-links">
-            <li><a href="/" class="nav-link">Home</a></li>
-            <li><a href="/games" class="nav-link">Games</a></li>
-            <li><a href="/developers" class="nav-link">Developers</a></li>
-            <li><a href="/library" class="nav-link">Library</a></li>
-            <li><a href="/add-game" class="nav-link">Add a Game</a></li>
-        </ul>
+    <ul class="nav-links">
+      <li><a href="/" class="nav-link">Home</a></li>
+      <li><a href="{{ url_for('games') }}" class="nav-link">Games</a></li>
+      <li><a href="{{ url_for('developers') }}" class="nav-link">Developers</a></li>
+      <li><a href="{{ url_for('library') }}" class="nav-link">Library</a></li>
+    </ul>
 
-        <div class="nav-buttons">
-            {% if session.loggedin %}
-            <span class="nav-username">{{ session.username }}</span>
-            <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
-            {% else %}
-            <a href="{{ url_for('login') }}" class="nav-link">Login</a>
-            <a href="{{ url_for('register') }}" class="nav-link">Register</a>
-            {% endif %}
-        </div>
-    </header>
+    <div class="nav-buttons">
+      {% if session.loggedin %}
+        <span class="nav-username">{{ session.username }}</span>
+        <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}"   class="nav-link">Login</a>
+        <a href="{{ url_for('register') }}" class="nav-link">Register</a>           
+      {% endif %}
+
+      <!-- Fixed: close the <a> and the .nav‑buttons div -->
+      <a href="{{ url_for('cart') }}" class="nav-link">
+        🛒 Cart
+        {% if session.get('cart') and session.cart|length > 0 %}
+          ({{ session.cart|length }})
+        {% endif %}
+      </a>
+    </div>
+  </header>
 </div>
 {% endblock %}
+

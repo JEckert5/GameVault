@@ -1,0 +1,47 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="cart-container">
+  <div class="cart-items">
+    <h1>Your Cart</h1>
+    {% if games %}
+      {% for g in games %}
+      <div class="cart-item-card">
+        <div class="item-info">
+          <h3>{{ g[1] }}</h3>
+        </div>
+        <div class="item-meta">
+          <span class="price">${{ '%.2f'|format(g[2]) }}</span>
+          <form method="post" action="{{ url_for('remove_from_cart', game_id=g[0]) }}">
+            <button type="submit" class="remove-button">Remove</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+      <div class="cart-total">
+        <span>Total:</span>
+        <span class="total-amount">${{ '%.2f'|format(total) }}</span>
+      </div>
+      <a href="{{ url_for('checkout') }}" class="checkout-button">Proceed to Checkout</a>
+    {% else %}
+      <p>Your cart is empty. <a href="{{ url_for('games') }}">Browse games</a>.</p>
+    {% endif %}
+  </div>
+  <div class="cart-summary">
+    <!-- Optionally add a summary or tips here -->
+  </div>
+</div>
+
+<style>
+.cart-container { display: flex; flex-wrap: wrap; gap: 2rem; padding: 2rem; }
+.cart-items { flex: 1 1 600px; }
+.cart-item-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; }
+.cart-item-card h3 { margin: 0; font-size: 1.2rem; }
+.item-meta { display: flex; align-items: center; gap: 1rem; }
+.remove-button { background: transparent; border: none; color: #c00; cursor: pointer; font-size: 0.9rem; }
+.cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-top: 1rem; }
+.checkout-button { display: inline-block; margin-top: 1rem; padding: 0.8rem 1.2rem; background: #28a745; color: white; border-radius: 6px; text-decoration: none; }
+.checkout-button:hover { background: #218838; }
+</style>
+
+{% endblock %}
