@@ -9,7 +9,7 @@
 <body>
     {% include "navbar.html" %}
 
-    {% if not user %}
+    {% if user == False %}
     <p>You are not logged in!</p>
     {% else %}
     <div class="left-div">

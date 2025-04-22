@@ -5,6 +5,7 @@ import re
 import MySQLdb.cursors
 import json
 from random import sample
+from ast import literal_eval
 
 
 app = Flask(__name__)
@@ -36,8 +37,6 @@ def main():
 
     featuredGames = sample(cur.fetchall(), 4)
 
-    # featuredGames = sample(featuredGames, 4)
-
     cur.execute(
         """
             SELECT developerID, name, about FROM developer;
@@ -45,8 +44,6 @@ def main():
     )
 
     featuredDevelopers = sample(cur.fetchall(), 4)
-
-    # featuredDevelopers = sample(featuredDevelopers, 4)
 
     cur.close()
 
@@ -182,7 +179,7 @@ def games():
     cur.execute(
         """
             SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints,
-                   d.name as developer_name, d.developerID
+                  d.name as developer_name, d.developerID
             FROM game g
             JOIN developer d ON g.developerID = d.developerID
             ORDER BY g.genre, g.title
@@ -203,22 +200,57 @@ def games():
     return render_template("games.html", games_by_genre=games_by_genre)
 
 
-@app.route("/games/<int:id>")
+@app.route("/games/<int:id>", methods=["GET", "POST"])
 def game(id: int):
-    cur = mysql.connection.cursor()
-    cur.execute(
-        f"""
-            SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
-            FROM game g 
-            JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
-        """
-    )
+    if request.method == "GET":
+        cur = mysql.connection.cursor()
+        cur.execute(
+            f"""
+                SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
+                FROM game g 
+                JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
+            """
+        )
 
-    game = cur.fetchall()
+        game = cur.fetchall()
 
-    cur.close()
+        cur.execute(
+            f"""
+                SELECT u.username, title, content, rating FROM review r JOIN user u ON r.gameID = {id} AND u.userID = r.userID;
+            """
+        )
 
-    return render_template("games.html", game=game[0])
+        reviews = cur.fetchall()
+
+        cur.close()
+
+        return render_template("games.html", game=game[0], reviews=reviews)
+    else:
+        review = request.form.get("review-content")
+        title = request.form.get("title-input")
+        rating = request.form.get("rating")
+
+        print(review, title)
+
+        cur = mysql.connection.cursor()
+
+        try:
+            cur.execute(
+                f"""
+                    INSERT INTO review (gameID, userID, content, title, rating) VALUES
+                    (
+                        {id}, {session["userID"]}, "{review}", "{title}", "{rating}"
+                    );
+                """
+            )
+        except:
+            pass
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        return redirect(f"/games/{id}")
 
 
 @app.route("/developers")
