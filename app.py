@@ -172,39 +172,32 @@ def logout():
     return redirect(url_for("main"))
 
 
-@app.route("/games", methods=["GET", "POST"])
+@app.route("/games")
 def games():
-    if request.method == "GET":
-        cur = mysql.connection.cursor()
+    cur = mysql.connection.cursor()
 
-        cur.execute(
-            """
-                SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints,
-                       d.name as developer_name, d.developerID
-                FROM game g
-                JOIN developer d ON g.developerID = d.developerID
-                ORDER BY g.genre, g.title
-            """
-        )
+    cur.execute(
+        """
+            SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints,
+                  d.name as developer_name, d.developerID
+            FROM game g
+            JOIN developer d ON g.developerID = d.developerID
+            ORDER BY g.genre, g.title
+        """
+    )
 
-        games = cur.fetchall()
-        # Organize by genre
-        games_by_genre = {}
-        for game in games:
-            genre = game[2]
-            if genre not in games_by_genre:
-                games_by_genre[genre] = []
-            games_by_genre[genre].append(game)
+    games = cur.fetchall()
+    # Organize by genre
+    games_by_genre = {}
+    for game in games:
+        genre = game[2]
+        if genre not in games_by_genre:
+            games_by_genre[genre] = []
+        games_by_genre[genre].append(game)
 
-        cur.close()
+    cur.close()
 
-        return render_template("games.html", games_by_genre=games_by_genre)
-    else:
-        review = request.form.get("review-content")
-
-        print(review)
-
-        return redirect(url_for("games"))
+    return render_template("games.html", games_by_genre=games_by_genre)
 
 
 @app.route("/games/<int:id>", methods=["GET", "POST"])
@@ -223,7 +216,7 @@ def game(id: int):
 
         cur.execute(
             f"""
-                SELECT userID, title, content, rating FROM review WHERE gameID = {id};
+                SELECT u.username, title, content, rating FROM review r JOIN user u ON r.gameID = {id} AND u.userID = r.userID;
             """
         )
 
@@ -234,10 +227,30 @@ def game(id: int):
         return render_template("games.html", game=game[0], reviews=reviews)
     else:
         review = request.form.get("review-content")
+        title = request.form.get("title-input")
+        rating = request.form.get("rating")
 
-        print(review)
+        print(review, title)
 
-        return redirect(url_for("game"))
+        cur = mysql.connection.cursor()
+
+        try:
+            cur.execute(
+                f"""
+                    INSERT INTO review (gameID, userID, content, title, rating) VALUES
+                    (
+                        {id}, {session["userID"]}, "{review}", "{title}", "{rating}"
+                    );
+                """
+            )
+        except:
+            pass
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        return redirect(f"/games/{id}")
 
 
 @app.route("/developers")
