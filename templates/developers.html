@@ -11,10 +11,16 @@
 <div class="games-container">
 
 <div class="games-grid">
-{% for d in data %}
-        <p>{{d}}</p>
-{% endfor %}
-</div>
+        {% for dev in data %}
+        <div class="game-card">
+            <div class="game-info">
+                <h3>{{dev[1]}}</h3>
+                <p class="description">{{dev[2]}}</p>
+                <a href="/developer_about/{{dev[0]}}" class="view-button">More</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
     
 </div>
 </body>

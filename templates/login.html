@@ -7,9 +7,9 @@
     <link href="{{url_for('static',filename='favicon.ico')}}" rel="icon" type="image/x-icon">
 </head>
 <body>
-    {% include 'navbar.html' %}
+{% include 'navbar.html' %}
 
-    <div class="auth-container">
+<div class="auth-container">
     <h2>Login</h2>
     {% if msg %}
         <div class="alert alert-danger">{{ msg }}</div>

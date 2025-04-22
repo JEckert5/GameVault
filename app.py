@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import re
 import MySQLdb.cursors
 import json
+from random import sample
 
 
 app = Flask(__name__)
@@ -23,12 +24,33 @@ mysql = MySQL(app)
 @app.route("/")
 def main():
     cur = mysql.connection.cursor()
+
     cur.execute(
-        "SELECT * FROM game g JOIN developer d ON g.developerID = d.developerID;"
+        """
+            SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints,
+                   d.name, d.developerID
+            FROM game g
+            JOIN developer d ON g.developerID = d.developerID;
+        """
     )
-    rv = cur.fetchall()
-    print(rv)
-    return render_template("index.html", tables=rv)
+
+    featuredGames = sample(cur.fetchall(), 4)
+
+    # featuredGames = sample(featuredGames, 4)
+
+    cur.execute(
+        """
+            SELECT developerID, name, about FROM developer;
+        """
+    )
+
+    featuredDevelopers = sample(cur.fetchall(), 4)
+
+    # featuredDevelopers = sample(featuredDevelopers, 4)
+
+    cur.close()
+
+    return render_template("index.html", games=featuredGames, devs=featuredDevelopers)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -166,6 +188,7 @@ def games():
             ORDER BY g.genre, g.title
         """
     )
+
     games = cur.fetchall()
     # Organize by genre
     games_by_genre = {}
@@ -203,7 +226,7 @@ def developers():
     cur = mysql.connection.cursor()
     cur.execute(
         """
-            SELECT d.name, d.about, d.developerID, g.title, g.gameID FROM developer d JOIN game g ON d.developerID = g.developerID;
+            SELECT developerID, name, about FROM developer;
         """
     )
     data = cur.fetchall()
@@ -251,7 +274,7 @@ def library():
 
         cur.close()
 
-        return render_template("library.html", user=data)
+        return render_template("library.html", games=data)
 
     else:
         return render_template("library.html", user=False)
