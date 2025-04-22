@@ -489,6 +489,28 @@ def remove_from_cart(game_id):
         session['cart'] = cart
         flash('Removed from cart.', 'info')
     return redirect(url_for('cart'))
+    
+@app.route("/friends")
+def friends():
+   
+        cur = mysql.connection.cursor()
+
+        cur.execute(
+            """
+                SELECT friendID
+                FROM friends
+                where userID = 1
+            """
+        )
+
+        data = cur.fetchall()
+
+        cur.close()
+
+        return render_template("friends.html", data=data)
+   
+
+    
 
 
 if __name__ == "__main__":
