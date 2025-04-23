@@ -1,3 +1,10 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GameVault - Checkout</title>
+  <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+</head>
+<body>
 {% extends 'navbar.html' %}
 
 {% block content %}
@@ -55,18 +62,8 @@
   </div>
 </div>
 
-<style>
-.checkout-container { max-width: 700px; margin: 2rem auto; padding: 1rem; }
-.checkout-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
-.checkout-table th, .checkout-table td { border-bottom: 1px solid #ddd; padding: 0.8rem; text-align: left; }
-.checkout-table tfoot td { border-top: 2px solid #333; }
-.checkout-form { display: flex; flex-direction: column; gap: 1rem; }
-.form-group, .form-group-inline { display: flex; flex-direction: column; }
-.form-group-inline { flex-direction: row; gap: 1rem; }
-.form-group label { margin-bottom: 0.4rem; font-weight: 500; }
-.form-group input { padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; }
-.pay-button { padding: 0.8rem 1.2rem; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
-.pay-button:hover { background: #0069d9; }
-</style>
+
 
 {% endblock %}
+</body>
+</html>

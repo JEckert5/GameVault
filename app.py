@@ -19,7 +19,6 @@ app.config["MYSQL_HOST"] = "dbdev.cs.kent.edu"
 app.config["MYSQL_USER"] = "nbooth5"
 app.config["MYSQL_PASSWORD"] = "bi9tqNM6"
 app.config["MYSQL_DB"] = "nbooth5"
-# app.config["MYSQL_UNIX_SOCKET"] = "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
 
 mysql = MySQL(app)
 
@@ -74,7 +73,7 @@ def login():
         cursor.execute("SELECT * FROM user WHERE username = %s", (username,))
         user = cursor.fetchone()
 
-        # Check if user exists and password is correct
+        
         if user:
             if check_password_hash(user["password"], password):
                 session["loggedin"] = True
@@ -82,8 +81,10 @@ def login():
                 session["username"] = user["username"]
                 session["email"] = user["email"]
                 session["status"] = user["status"]
+                session["developer"] = user["developer"]
 
-                # Update user status to ONLINE
+
+                
                 cursor.execute(
                     'UPDATE user SET status = "ONLINE" WHERE userID = %s',
                     (user["userID"],),
@@ -160,14 +161,14 @@ def register():
 @app.route("/logout")
 def logout():
     if "loggedin" in session:
-        # Update status to OFFLINE
+        
         cursor = mysql.connection.cursor()
         cursor.execute(
             'UPDATE user SET status = "OFFLINE" WHERE userID = %s', (session["userID"],)
         )
         mysql.connection.commit()
 
-        # Clear session
+        
         session.pop("loggedin", None)
         session.pop("userID", None)
         session.pop("username", None)
@@ -176,6 +177,31 @@ def logout():
 
         flash("You have been logged out.", "info")
     return redirect(url_for("main"))
+
+
+@app.route('/toggle_developer')
+def toggle_developer():
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    cur = mysql.connection.cursor()
+
+    
+    cur.execute("SELECT developer FROM user WHERE userID = %s", [session['userID']])
+    current_status = cur.fetchone()[0]
+
+    
+    new_status = 0 if current_status == 1 else 1
+    cur.execute("UPDATE user SET developer = %s WHERE userID = %s", [new_status, session['userID']])
+    mysql.connection.commit()
+    cur.close()
+
+    
+    session['developer'] = new_status
+
+    flash(f"Developer mode {'enabled' if new_status else 'disabled'}.", "info")
+    return redirect(request.referrer or url_for('main'))
+
 
 
 @app.route("/games")
@@ -377,9 +403,6 @@ def cart():
     cur.close()
     return render_template('cart.html', games=games, total=total)
 
-
-from datetime import datetime
-
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     if 'loggedin' not in session:
@@ -391,7 +414,7 @@ def checkout():
 
     cur = mysql.connection.cursor()
 
-    # Fetch game info for items in the cart
+    
     format_strings = ','.join(['%s'] * len(cart))
     cur.execute(f"SELECT gameID, title, price FROM game WHERE gameID IN ({format_strings})", cart)
     games = cur.fetchall()
@@ -408,7 +431,7 @@ def checkout():
         state = request.form['state']
         country = request.form['country']
 
-        # Insert new address
+        
         cur.execute("""
             INSERT INTO address (street_addr, city, state, country)
             VALUES (%s, %s, %s, %s)
@@ -420,7 +443,7 @@ def checkout():
         exp_date = f"{exp_year}-{exp_month}-01"
         user_id = session['userID']
 
-        # Insert payment info
+        
         cur.execute("""
         INSERT INTO payment_info (userID, card_num, cvv, exp_date, billing_address)
         VALUES (%s, %s, %s, %s, %s)
@@ -449,7 +472,7 @@ def checkout():
         mysql.connection.commit()
         cur.close()
 
-        # Clear cart after purchase
+        
         session['cart'] = []
 
         return redirect(url_for('library'))
