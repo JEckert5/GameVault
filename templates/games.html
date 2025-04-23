@@ -41,7 +41,7 @@
                     </div>
                     <div class="game-info">
                         <h3>{{ game[1] }}</h3>
-                        <a class="developer" href="/developer_about/{{game[6]}}">{{ game[6] }}</a>
+                        <a class="developer" href="/developer_about/{{game[7]}}">{{ game[6] }}</a>
                         <p class="description">{{ game[3] }}...</p>
                         <div class="game-meta">
                             <span class="checkpoints">{{ game[4] }} checkpoints</span>
@@ -66,7 +66,7 @@
         </div>
         <div class="game-info">
             <h3>{{ game[1] }}</h3>
-            <a class="developer" href="/developer_about/{{game[6]}}">{{ game[6] }}</a>
+            <a class="developer" href="/developer_about/{{game[7]}}">{{ game[6] }}</a>
             <p class="description">{{ game[3] }}</p>
             <div class="game-meta">
                 <span class="checkpoints">{{ game[4] }} checkpoints</span>
@@ -75,8 +75,8 @@
             </div>
         </div>
 
-        {% if session.loggedin %}
         <div>
+        {% if session.loggedin %}
         <button class="btn-login" style="width: 25%;" onclick="reviewbox()">Leave Review</button>
 
         <form id="review-input" style="display: none;" method="POST">
@@ -92,6 +92,14 @@
             <textarea name="review-content"></textarea>
             <button type="submit">Submit</button>
         </form>
+
+        {% if duplicate %}
+
+        <span>You cannot leave 2 reviews on the same game!</span>
+
+        {% endif %}
+
+        {% endif %}
 
         {% for review in reviews %}
         <div class="game-card-no-hover">
@@ -110,7 +118,6 @@
         </div>
         {% endfor %}
         </div>
-        {% endif %}
     </div>
     {% endif %}
 </body>

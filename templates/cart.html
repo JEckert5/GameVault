@@ -1,3 +1,10 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GameVault - Cart</title>
+  <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+</head>
+<body>
 {% extends 'navbar.html' %}
 
 {% block content %}
@@ -28,20 +35,10 @@
     {% endif %}
   </div>
   <div class="cart-summary">
-    <!-- Optionally add a summary or tips here -->
+    
   </div>
 </div>
 
-<style>
-.cart-container { display: flex; flex-wrap: wrap; gap: 2rem; padding: 2rem; }
-.cart-items { flex: 1 1 600px; }
-.cart-item-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; }
-.cart-item-card h3 { margin: 0; font-size: 1.2rem; }
-.item-meta { display: flex; align-items: center; gap: 1rem; }
-.remove-button { background: transparent; border: none; color: #c00; cursor: pointer; font-size: 0.9rem; }
-.cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-top: 1rem; }
-.checkout-button { display: inline-block; margin-top: 1rem; padding: 0.8rem 1.2rem; background: #28a745; color: white; border-radius: 6px; text-decoration: none; }
-.checkout-button:hover { background: #218838; }
-</style>
-
 {% endblock %}
+</body>
+</html>
