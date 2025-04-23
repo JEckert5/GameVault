@@ -92,6 +92,7 @@
             <textarea name="review-content"></textarea>
             <button type="submit">Submit</button>
         </form>
+        {% endif %}
 
         {% for review in reviews %}
         <div class="game-card-no-hover">
@@ -110,7 +111,6 @@
         </div>
         {% endfor %}
         </div>
-        {% endif %}
     </div>
     {% endif %}
 </body>
