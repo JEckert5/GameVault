@@ -37,8 +37,6 @@ def main():
 
     featuredGames = sample(cur.fetchall(), 4)
 
-    # featuredGames = sample(featuredGames, 4)
-
     cur.execute(
         """
             SELECT developerID, name, about FROM developer;
@@ -46,8 +44,6 @@ def main():
     )
 
     featuredDevelopers = sample(cur.fetchall(), 4)
-
-    # featuredDevelopers = sample(featuredDevelopers, 4)
 
     cur.close()
 
@@ -229,6 +225,10 @@ def games():
 @app.route("/games/<int:id>", methods=["GET", "POST"])
 def game(id: int):
     if request.method == "GET":
+        dupe = False
+        if request.args.get("duplicate"):
+            dupe = True
+
         cur = mysql.connection.cursor()
 
         cur.execute(
@@ -249,7 +249,9 @@ def game(id: int):
 
         cur.close()
 
-        return render_template("games.html", game=game[0], reviews=reviews)
+        return render_template(
+            "games.html", game=game[0], reviews=reviews, duplicate=dupe
+        )
     else:
         review = request.form.get("review-content")
         title = request.form.get("title-input")
@@ -273,8 +275,10 @@ def game(id: int):
                 """
             )
 
-        except:
-            pass
+        except Exception as e:  # Probably a user double reviewing, not allowed
+            print(e)
+
+            return redirect(f"/games/{id}?duplicate=true")
 
         print(review)
 
@@ -282,7 +286,7 @@ def game(id: int):
 
         cur.close()
 
-        return redirect(url_for("game"))
+        return redirect(f"/games/{id}")
 
 
 @app.route("/developers")
