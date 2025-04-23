@@ -173,6 +173,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
+
+    .game-image > img {
+        object-fit: contain;
+        transform: scale(0.5);
+        width: 100%;
+        height: 100%;
+      }
 }
 
 .game-card {
@@ -200,6 +207,7 @@
 
 .game-card:hover {
     transform: translateY(-5px);
+    
 }
 
 .game-image {
@@ -208,6 +216,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    
 }
 
 .image-placeholder {
