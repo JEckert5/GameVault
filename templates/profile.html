@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>GameVault - Profile</title>
+    <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+    <link href="{{url_for('static',filename='favicon.ico')}}" rel="icon" type="image/x-icon">
+
+    <script>
+    function toggleFormVisability(id) {
+        var textarea = document.getElementById(id)
+
+        if (textarea.style.display === "none") {
+            textarea.style.display = "block";
+        } else {
+            textarea.style.display = "none";
+        }
+    }
+    </script>
+</head>
+
+<body>
+{% include "navbar.html"%}
+
+<div class="center-div">
+    <h1>Username: {{user["username"]}}</h1>
+
+    <h2>Status: <span style="color: {{user['color']}}">{{user["status"]}}</span></h2>
+    {% if is_self %}
+    <div class="nav-dropdown">
+        <button class="nav-username">Change Status ⌄</button>
+        <form class="nav-dropdown-content" name="set-status" method="POST">
+            <button name="set-status" id="set-status" value="ONLINE" type="submit">Online</button><br>
+            <button name="set-status" id="set-status" value="AWAY" type="submit">Away</button><br>
+            <button name="set-status" id="set-status" value="DO NOT DISTURB" type="submit">Do not disturb</button><br>
+            <button name="set-status" id="set-status" value="OFFLINE" type="submit">Offline</button>
+        </form>
+    </div>
+    {% endif %}
+
+<div>
+    <p>User bio:</p>
+
+    <!--Markdown support via https://github.com/MarketingPipeline/Markdown-Tag-->
+    <md class="bio-box">{{user['bio']}}</md>
+
+    {% if is_self %}
+    <div class="left-div" style="width:100%">
+
+    <button class="bio-button" onclick="toggleFormVisability('bio-form')" style="margin-bottom:15px">Edit bio</button>
+    <form method="POST" style="display:none;margin-bottom:20px" id="bio-form">
+        <textarea name="bio-input" id="bio-input" style="width:100%;height:fit-content;">{{user['bio']}}</textarea>
+        <button type="submit" class="bio-button">Save Changes</button>
+    </form>
+
+    {% if dev %}
+    <button onclick="toggleFormVisability('dev-about-form')" style="margin-bottom:15px" class="bio-button">Edit developer description</button>
+    <form method="POST" style="display: none;margin-bottom:20px" id="dev-about-form">
+        <textarea name="dev-about-input" id="dev-about-input" style="width:100%;height:fit-content">{{dev[0]}}</textarea>
+        <button type="submit" class="bio-button">Save Changes</button>
+    </form>
+    {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+</div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script> 
+</html>
