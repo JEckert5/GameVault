@@ -18,7 +18,22 @@
 
     <div class="nav-buttons">
       {% if session.loggedin %}
-        <span class="nav-username">{{ session.username }}</span>
+      <div class="nav-dropdown">
+        <button class="nav-username">{{ session.username }} ⌄</button>
+        <div class="nav-dropdown-content">
+          <a href="/user_profile/{{session.userID}}">Profile</a>
+          <a href="{{ url_for('toggle_developer') }}">
+            {% if session.get('developer') == 1 %}
+              Disable Developer Mode
+            {% else %}
+              Enable Developer Mode
+            {% endif %}
+          </a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+      </div>
+      
+        </div>
         <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
       {% else %}
         <a href="{{ url_for('login') }}"   class="nav-link">Login</a>

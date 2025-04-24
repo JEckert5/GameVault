@@ -39,7 +39,18 @@ def main():
 
     featuredGames = sample(cur.fetchall(), 4)
 
-    # featuredGames = sample(featuredGames, 4)
+    alreadyOwned = {}
+    if "loggedin" in session:
+        for game in featuredGames:
+            cur.execute(f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {game[0]} AND o.ownerID = {session["userID"]}")
+            result = cur.fetchall()
+            if result:
+                alreadyOwned[game[0]] = True
+            else:
+                alreadyOwned[game[0]] = False
+    else:
+        for game in featuredGames:
+            alreadyOwned[game[0]] = False
 
     cur.execute(
         """
@@ -53,7 +64,7 @@ def main():
 
     cur.close()
 
-    return render_template("index.html", games=featuredGames, devs=featuredDevelopers)
+    return render_template("index.html", games=featuredGames, devs=featuredDevelopers, owned=alreadyOwned)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -173,6 +184,7 @@ def logout():
         session.pop("username", None)
         session.pop("email", None)
         session.pop("status", None)
+        session.pop("developer", None)
 
         flash("You have been logged out.", "info")
     return redirect(url_for("main"))
@@ -201,9 +213,22 @@ def games():
             games_by_genre[genre] = []
         games_by_genre[genre].append(game)
 
+    alreadyOwned = {}
+    if "loggedin" in session:
+        for game in games:
+            cur.execute(f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {game[0]} AND o.ownerID = {session["userID"]}")
+            result = cur.fetchall()
+            if result:
+                alreadyOwned[game[0]] = True
+            else:
+                alreadyOwned[game[0]] = False
+    else:
+        for game in games:
+            alreadyOwned[game[0]] = False
+
     cur.close()
 
-    return render_template("games.html", games_by_genre=games_by_genre)
+    return render_template("games.html", games_by_genre=games_by_genre, owned=alreadyOwned)
 
 
 @app.route("/games/<int:id>")
@@ -219,9 +244,56 @@ def game(id: int):
 
     game = cur.fetchall()
 
-    cur.close()
+        alreadyOwned = False
 
-    return render_template("games.html", game=game[0])
+        if "loggedin" in session:
+            cur.execute(
+                f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {id} and o.ownerID = {session["userID"]};"
+            )
+            result = cur.fetchall()
+            if result:
+                alreadyOwned = True
+            else:
+                alreadyOwned = False
+
+        cur.close()
+
+        return render_template(
+            "games.html", game=game[0], reviews=reviews, duplicate=dupe, owned=alreadyOwned
+        )
+       else:
+        review = request.form.get("review-content")
+        title = request.form.get("title-input")
+        rating = request.form.get("rating")
+
+        # print(review, title)
+
+        cur = mysql.connection.cursor()
+
+        try:
+            cur.execute(
+                f"""
+                INSERT INTO review (gameID, userID, content, title, rating) VALUES
+                (
+                    {id}, 
+                    {session["userID"]}, 
+                    "{review}", 
+                    "{title}", 
+                    "{rating}"
+                );
+                """
+            )
+
+        except Exception as e:  # Probably a user double reviewing, not allowed
+            print(e)
+
+            return redirect(f"/games/{id}?duplicate=true")
+
+        print(review)
+
+        mysql.connection.commit()
+
+        return redirect(f"/games/{id}")
 
 
 @app.route("/developers")
@@ -267,7 +339,7 @@ def library():
 
         cur.execute(
             f"""
-                SELECT  g.title, o.completed_checkpoints, g.total_checkpoints
+                SELECT  g.gameID, g.title, o.completed_checkpoints, g.total_checkpoints
                 FROM owned_game o JOIN game g
                 ON o.ownerID = {session["userID"]} AND o.gameID = g.gameID;
             """
@@ -354,12 +426,20 @@ def add_game():
 
 @app.route('/add_to_cart/<int:game_id>')
 def add_to_cart(game_id):
-    cart = session.get('cart', [])
-    cart.append(game_id)
-    session['cart'] = cart
-    flash('Game added to cart.', 'success')
-    
-    return redirect(request.referrer or url_for('games'))
+    cart = session.get("cart", [])
+
+    addable = True
+    for g in cart:
+        if g == game_id:
+            addable = False
+            break
+
+    if addable == True:
+        cart.append(game_id)
+        session["cart"] = cart
+        flash("Game added to cart.", "success")
+
+    return redirect(request.referrer or url_for("games"))
 
 @app.route('/cart')
 def cart():
@@ -469,10 +549,78 @@ def remove_from_cart(game_id):
     cart = session.get('cart', [])
     if game_id in cart:
         cart.remove(game_id)
-        session['cart'] = cart
-        flash('Removed from cart.', 'info')
-    return redirect(url_for('cart'))   
+        session["cart"] = cart
+        flash("Removed from cart.", "info")
+    return redirect(url_for("cart"))
 
+
+@app.route("/user_profile/<int:id>", methods=["POST", "GET"])
+def user_profile(id: int):
+    cur = mysql.connection.cursor()
+
+    if request.method == "GET":
+        is_self = False
+        dev = False
+        if "loggedin" in session:
+            if session["userID"] == id:
+                is_self = True
+
+            if session["developer"] == 1:
+                cur.execute(f"SELECT about FROM developer WHERE developerID = {id};")
+
+                dev = cur.fetchall()[0]
+
+        user = {}
+        user["userID"] = id
+
+        cur.execute(f"SELECT bio, status, username FROM user WHERE userID = {id};")
+
+        data = cur.fetchall()[0]
+
+        user["bio"] = data[0]
+        user["status"] = data[1]
+        user["username"] = data[2]
+
+        # cur.execute(
+        #     f"SELECT f.friendID, u.username FROM friends f JOIN user u ON u.userID = f.friendID AND f.userID = {id};"
+        # )
+
+        # user["friends"] = cur.fetchall()
+
+        if user["status"] == "ONLINE":
+            user["color"] = "green"
+        elif user["status"] == "OFFLINE":
+            user["color"] = "gray"
+        elif user["status"] == "DO NOT DISTURB":
+            user["color"] = "red"
+        else:  # Away
+            user["color"] = "yellow"
+
+        cur.close()
+
+        return render_template("profile.html", user=user, is_self=is_self, dev=dev)
+    else:
+        if "bio-input" in request.form:
+            cur.execute(
+                f'UPDATE user SET bio="{request.form.get("bio-input")}" WHERE userID = {session["userID"]}'
+            )
+
+        if "set-status" in request.form:
+            cur.execute(
+                f'UPDATE user SET status="{request.form["set-status"]}" WHERE userID = {session["userID"]};'
+            )
+
+        if "dev-about-input" in request.form:
+            cur.execute(
+                f'UPDATE developer SET about="{request.form["dev-about-input"]}" WHERE developerID = {session["userID"]};'
+            )
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        return redirect(f"/user_profile/{id}")
+    
 @app.route("/friends")
 def friends():
     if "loggedin" in session:
@@ -500,8 +648,7 @@ def friends():
     
     else:
         return render_template("library.html", user=False)
-        
-
+    
 @app.route("/add_friend", methods=['POST'])
 def add_friend():
     if "loggedin" in session:
@@ -519,7 +666,6 @@ def add_friend():
         return redirect(url_for("friends"))
 
     return redirect(url_for("friends"))
-
 
 
 if __name__ == "__main__":
