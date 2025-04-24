@@ -1,0 +1,525 @@
+/* Navigation Styles */
+.nav-container {
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 2rem;
+    background-color: white;
+    /* Added for better visibility */
+}
+
+.nav-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-brand {
+    margin-right: 2rem;
+}
+
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+}
+
+.logo-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-link {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #007bff;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-login,
+.btn-signup {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.btn-login {
+    background: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+}
+
+.btn-login:hover {
+    background: #007bff11;
+}
+
+.btn-signup {
+    background: #007bff;
+    border: 1px solid #007bff;
+    color: white;
+}
+
+.btn-signup:hover {
+    background: #0069d9;
+    border-color: #0062cc;
+}
+
+
+.center-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.center-row-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.center-row-div-unstyle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 10px;
+}
+
+.left-div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-items: left;
+    width: max-content;
+}
+
+.library-item {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+
+    .game-image > img {
+        object-fit: contain;
+        transform: scale(0.5);
+        width: 100%;
+        height: 100%;
+      }
+}
+
+.library-item:hover {
+    cursor: pointer;
+}
+
+.library-text {
+    padding: 1.2rem;
+}
+
+.library-text h3 {
+    margin: 0 0 0.5rem;
+    color: #333;
+}
+
+/* Games Page Styles */
+.games-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.genre-section {
+    margin-bottom: 3rem;
+}
+
+.genre-title {
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+
+    .game-image > img {
+        object-fit: contain;
+        transform: scale(0.5);
+        width: 100%;
+        height: 100%;
+      }
+}
+
+.game-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+
+    .game-image > img {
+        object-fit: contain;
+        transform: scale(0.5);
+        width: 100%;
+        height: 100%;
+      }
+}
+
+.game-card-no-hover {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    
+}
+
+.game-image {
+    height: 160px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.image-placeholder {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #999;
+}
+
+.game-info {
+    padding: 1.2rem;
+}
+
+.game-info h3 {
+    margin: 0 0 0.5rem;
+    color: #333;
+}
+
+.developer {
+    color: #3012d7;
+    font-size: 0.9rem;
+    margin: 0 0 0.8rem;
+}
+
+.description {
+    color: #444;
+    font-size: 0.95rem;
+    margin: 0 0 1rem;
+}
+
+.owned {
+    font-weight: 200;
+    font-style: italic;
+    color: #999;
+}
+
+.game-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 1.2rem;
+}
+
+.view-button {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.view-button:hover {
+    background: #0069d9;
+}
+
+/* Auth Styles */
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-container h2 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.btn-login,
+.btn-signup {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-login {
+    background: #007bff;
+    color: white;
+}
+
+.btn-signup {
+    background: #28a745;
+    color: white;
+}
+
+.btn-login:hover {
+    background: #0069d9;
+}
+
+.btn-signup:hover {
+    background: #218838;
+}
+
+.alert {
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+/* Dropdown styles */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+.nav-dropdown button {
+    background-color: #f1f1f1;
+    border: none;
+    padding: 8px 12px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .nav-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+  
+  .nav-dropdown-content a {
+    color: black;
+    padding: 10px 14px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .nav-dropdown-content a:hover {
+    background-color: #ddd;
+  }
+  
+  .nav-dropdown:hover .nav-dropdown-content {
+    display: block;
+  }
+
+  .checkout-container {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.checkout-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+
+.checkout-table th,
+.checkout-table td {
+    border-bottom: 1px solid #ddd;
+    padding: 0.8rem;
+    text-align: left;
+}
+
+.checkout-table tfoot td {
+    border-top: 2px solid #333;
+}
+
+.checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group,
+.form-group-inline {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-inline {
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.form-group label {
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.pay-button {
+    padding: 0.8rem 1.2rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.pay-button:hover {
+    background: #0069d9;
+}
+
+.cart-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.cart-items {
+    flex: 1 1 600px;
+}
+
+.cart-item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.cart-item-card h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.item-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.remove-button {
+    background: transparent;
+    border: none;
+    color: #c00;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 1rem;
+}
+
+.checkout-button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.8rem 1.2rem;
+    background: #28a745;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.checkout-button:hover {
+    background: #218838;
+}
+
+  

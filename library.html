@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GameVault</title>
+    <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+    <link href="{{url_for('static',filename='favicon.ico')}}" rel="icon" type="image/x-icon">
+</head>
+<body>
+    {% include "navbar.html" %}
+
+    {% if user == False %}
+    <p>You are not logged in!</p>
+    {% elif not games %}
+    <p>You have no games!</p>
+    {% else %}
+    <div class="games-container">
+        <div class="games-grid">
+            {% for game in games %}
+            <div class="game-card">
+                <div class="game-image">
+                    <!-- Placeholder for game image -->
+                    <img src="{{ url_for('static', filename='images/' ~ game[1] ~ '.webp') }}" alt="{{ game[1] }} image" />
+                </div>
+                <div class="game-info">
+                    <h3>{{ game[1] }}</h3>
+                    <a class="developer" href="/developer_about/{{game[7]}}">{{ game[6] }}</a>
+                    <p class="description">{{ game[3] }} total checkpoints</p>
+                    <div class="game-meta">
+                        <span class="checkpoints">{{ game[2] }} completed checkpoints</span>
+                    </div>
+                    <a href="/games/{{ game[0] }}" class="view-button">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</body>
+</html>
