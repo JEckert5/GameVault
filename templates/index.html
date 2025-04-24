@@ -18,7 +18,8 @@
         {% for game in games %}
         <div class="game-card">
             <div class="game-image">
-                <div class="image-placeholder">{{game[1]}}</div>
+                <img src="{{ url_for('static', filename='images/' ~ game[1] ~ '.webp') }}" alt="{{ game[1] }} image" />
+                <!-- <div class="image-placeholder">{{game[1]}}</div> -->
             </div>
             <div class="game-info">
                 <h3>{{game[1]}}</h3>
