@@ -567,5 +567,73 @@ def remove_from_cart(game_id):
     return redirect(url_for("cart"))
 
 
+@app.route("/user_profile/<int:id>", methods=["POST", "GET"])
+def user_profile(id: int):
+    cur = mysql.connection.cursor()
+
+    if request.method == "GET":
+        is_self = False
+        dev = False
+        if "loggedin" in session:
+            if session["userID"] == id:
+                is_self = True
+
+            if session["developer"] == 1:
+                cur.execute(f"SELECT about FROM developer WHERE developerID = {id};")
+
+                dev = cur.fetchall()[0]
+
+        user = {}
+        user["userID"] = id
+
+        cur.execute(f"SELECT bio, status, username FROM user WHERE userID = {id};")
+
+        data = cur.fetchall()[0]
+
+        user["bio"] = data[0]
+        user["status"] = data[1]
+        user["username"] = data[2]
+
+        # cur.execute(
+        #     f"SELECT f.friendID, u.username FROM friends f JOIN user u ON u.userID = f.friendID AND f.userID = {id};"
+        # )
+
+        # user["friends"] = cur.fetchall()
+
+        if user["status"] == "ONLINE":
+            user["color"] = "green"
+        elif user["status"] == "OFFLINE":
+            user["color"] = "gray"
+        elif user["status"] == "DO NOT DISTURB":
+            user["color"] = "red"
+        else:  # Away
+            user["color"] = "yellow"
+
+        cur.close()
+
+        return render_template("profile.html", user=user, is_self=is_self, dev=dev)
+    else:
+        if "bio-input" in request.form:
+            cur.execute(
+                f'UPDATE user SET bio="{request.form.get("bio-input")}" WHERE userID = {session["userID"]}'
+            )
+
+        if "set-status" in request.form:
+            cur.execute(
+                f'UPDATE user SET status="{request.form["set-status"]}" WHERE userID = {session["userID"]};'
+            )
+
+        if "dev-about-input" in request.form:
+            cur.execute(
+                f'UPDATE developer SET about="{request.form["dev-about-input"]}" WHERE developerID = {session["userID"]};'
+            )
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        return redirect(f"/user_profile/{id}")
+
+
 if __name__ == "__main__":
     app.run(host="localhost", port=5000)

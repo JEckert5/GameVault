@@ -24,7 +24,7 @@
             <div class="game-info">
                 <h3>{{game[1]}}</h3>
                 <a class="developer" href="/developer_about/{{game[6]}}">{{game[6]}}</a>
-                <p class="description">{{game[3]}}</p>
+                <md class="description">{{game[3]}}</md>
                 <div class="game-meta">
                     <span class="checkpoints">{{game[4]}} checkpoints</span>
                     <span class="$"> ${{game[5]}}</span>
@@ -43,7 +43,7 @@
         <div class="game-card">
             <div class="game-info">
                 <h3>{{dev[1]}}</h3>
-                <p class="description">{{dev[2]}}</p>
+                <md class="description">{{dev[2]}}</md>
                 <a href="/developer_about/{{dev[0]}}" class="view-button">More</a>
             </div>
         </div>
@@ -51,4 +51,6 @@
     </div>
 </div>
 </body>
+
+<script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script> 
 </html>

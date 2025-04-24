@@ -15,8 +15,6 @@
             } else {
                 f.style.display = "none";
             }
-
-            console.log("balls")
         }
     </script>
 </head>
@@ -42,7 +40,7 @@
                     <div class="game-info">
                         <h3>{{ game[1] }}</h3>
                         <a class="developer" href="/developer_about/{{game[7]}}">{{ game[6] }}</a>
-                        <p class="description">{{ game[3] }}...</p>
+                        <md class="description">{{ game[3] }}...</md>
                         <div class="game-meta">
                             <span class="checkpoints">{{ game[4] }} checkpoints</span>
                             <span class="$"> ${{ game[5] }} </span>
@@ -59,15 +57,16 @@
 
     <!--Individual game detail view-->
     {% elif game %}
+    {{game}}
     <div class="game-card-no-hover">
         <div class="game-image">
             <!-- Placeholder for game image -->
-            <div class="image-placeholder">{{ game[1] }}</div>
+            <img src="{{ url_for('static', filename='images/' ~ game[1] ~ '.webp') }}" alt="{{ game[1] }} image" />
         </div>
         <div class="game-info">
             <h3>{{ game[1] }}</h3>
             <a class="developer" href="/developer_about/{{game[7]}}">{{ game[6] }}</a>
-            <p class="description">{{ game[3] }}</p>
+            <md class="description">{{ game[3] }}</md>
             <div class="game-meta">
                 <span class="checkpoints">{{ game[4] }} checkpoints</span>
                 <span class="$"> ${{ game[5] }} </span>
@@ -95,7 +94,7 @@
 
         {% if duplicate %}
 
-        <span>You cannot leave 2 reviews on the same game!</span>
+        <p>You cannot leave 2 reviews on the same game!</p>
 
         {% endif %}
 
@@ -121,4 +120,6 @@
     </div>
     {% endif %}
 </body>
+
+<script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script> 
 </html>

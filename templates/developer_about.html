@@ -10,9 +10,13 @@
 {% include 'navbar.html' %}
 <div class="center-div">
     <h1>{{dev[0]}}</h1>
-    <p>{{dev[1]}}</p>
+    <div class="center-div">
+        <md>{{dev[1]}}</md>
+    </div>
 
-    <div class="left-div ">
+    <br>
+
+    <div class="left-div">
         <!--List Games they have made-->
         {% for game in games %}
 
@@ -22,4 +26,6 @@
     </div>
 </div>
 </body>
+
+<script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script> 
 </html>
