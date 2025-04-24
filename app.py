@@ -9,6 +9,7 @@ from random import sample
 from ast import literal_eval
 
 
+
 app = Flask(__name__)
 
 app.secret_key = "NEED TO CHANGE TO SOMETHING ACTUALLY SECURE"
@@ -18,6 +19,7 @@ app.config["MYSQL_HOST"] = "dbdev.cs.kent.edu"
 app.config["MYSQL_USER"] = "nbooth5"
 app.config["MYSQL_PASSWORD"] = "bi9tqNM6"
 app.config["MYSQL_DB"] = "nbooth5"
+# app.config["MYSQL_UNIX_SOCKET"] = "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
 
 mysql = MySQL(app)
 
@@ -37,6 +39,8 @@ def main():
 
     featuredGames = sample(cur.fetchall(), 4)
 
+    # featuredGames = sample(featuredGames, 4)
+
     cur.execute(
         """
             SELECT developerID, name, about FROM developer;
@@ -44,6 +48,8 @@ def main():
     )
 
     featuredDevelopers = sample(cur.fetchall(), 4)
+
+    # featuredDevelopers = sample(featuredDevelopers, 4)
 
     cur.close()
 
@@ -68,6 +74,7 @@ def login():
         cursor.execute("SELECT * FROM user WHERE username = %s", (username,))
         user = cursor.fetchone()
 
+        # Check if user exists and password is correct
         if user:
             if check_password_hash(user["password"], password):
                 session["loggedin"] = True
@@ -75,8 +82,8 @@ def login():
                 session["username"] = user["username"]
                 session["email"] = user["email"]
                 session["status"] = user["status"]
-                session["developer"] = user["developer"]
 
+                # Update user status to ONLINE
                 cursor.execute(
                     'UPDATE user SET status = "ONLINE" WHERE userID = %s',
                     (user["userID"],),
@@ -153,13 +160,14 @@ def register():
 @app.route("/logout")
 def logout():
     if "loggedin" in session:
-
+        # Update status to OFFLINE
         cursor = mysql.connection.cursor()
         cursor.execute(
             'UPDATE user SET status = "OFFLINE" WHERE userID = %s', (session["userID"],)
         )
         mysql.connection.commit()
 
+        # Clear session
         session.pop("loggedin", None)
         session.pop("userID", None)
         session.pop("username", None)
@@ -168,30 +176,6 @@ def logout():
 
         flash("You have been logged out.", "info")
     return redirect(url_for("main"))
-
-
-@app.route("/toggle_developer")
-def toggle_developer():
-    if "loggedin" not in session:
-        return redirect(url_for("login"))
-
-    cur = mysql.connection.cursor()
-
-    cur.execute("SELECT developer FROM user WHERE userID = %s", [session["userID"]])
-    current_status = cur.fetchone()[0]
-
-    new_status = 0 if current_status == 1 else 1
-    cur.execute(
-        "UPDATE user SET developer = %s WHERE userID = %s",
-        [new_status, session["userID"]],
-    )
-    mysql.connection.commit()
-    cur.close()
-
-    session["developer"] = new_status
-
-    flash(f"Developer mode {'enabled' if new_status else 'disabled'}.", "info")
-    return redirect(request.referrer or url_for("main"))
 
 
 @app.route("/games")
@@ -222,71 +206,22 @@ def games():
     return render_template("games.html", games_by_genre=games_by_genre)
 
 
-@app.route("/games/<int:id>", methods=["GET", "POST"])
+@app.route("/games/<int:id>")
 def game(id: int):
-    if request.method == "GET":
-        dupe = False
-        if request.args.get("duplicate"):
-            dupe = True
+    cur = mysql.connection.cursor()
+    cur.execute(
+        f"""
+            SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
+            FROM game g 
+            JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
+        """
+    )
 
-        cur = mysql.connection.cursor()
+    game = cur.fetchall()
 
-        cur.execute(
-            f"""
-                SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
-                FROM game g 
-                JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
-            """
-        )
+    cur.close()
 
-        game = cur.fetchall()
-
-        cur.execute(
-            f"SELECT u.username, title, content, rating FROM review r JOIN user u ON r.gameID = {id} AND u.userID = r.userID;"
-        )
-
-        reviews = cur.fetchall()
-
-        cur.close()
-
-        return render_template(
-            "games.html", game=game[0], reviews=reviews, duplicate=dupe
-        )
-    else:
-        review = request.form.get("review-content")
-        title = request.form.get("title-input")
-        rating = request.form.get("rating")
-
-        # print(review, title)
-
-        cur = mysql.connection.cursor()
-
-        try:
-            cur.execute(
-                f"""
-                INSERT INTO review (gameID, userID, content, title, rating) VALUES
-                (
-                    {id}, 
-                    {session["userID"]}, 
-                    "{review}", 
-                    "{title}", 
-                    "{rating}"
-                );
-                """
-            )
-
-        except Exception as e:  # Probably a user double reviewing, not allowed
-            print(e)
-
-            return redirect(f"/games/{id}?duplicate=true")
-
-        print(review)
-
-        mysql.connection.commit()
-
-        cur.close()
-
-        return redirect(f"/games/{id}")
+    return render_template("games.html", game=game[0])
 
 
 @app.route("/developers")
@@ -346,12 +281,16 @@ def library():
 
     else:
         return render_template("library.html", user=False)
+    
 
+   
 
-@app.route("/add-game", methods=["GET", "POST"])
+    
+
+@app.route("/add-game", methods=['GET', 'POST'])
 def add_game():
     if "loggedin" in session:
-        if request.method == "GET":
+        if request.method == 'GET':
             cur = mysql.connection.cursor()
 
             cur.execute("SHOW COLUMNS FROM game LIKE 'genre';")
@@ -359,168 +298,140 @@ def add_game():
             data = data.replace("enum", "")
             data = literal_eval(data)
 
-            cur.execute(
-                "SELECT developer FROM user WHERE userID=%s;", [session["userID"]]
-            )
+            cur.execute("SELECT developer FROM user WHERE userID=%s;", [session['userID']])
             dev = cur.fetchall()[0][0]
 
             cur.close()
-            return render_template("add_game.html", genres=data, dev=dev)
-        elif request.method == "POST":
+            return render_template('add_game.html', genres=data, dev=dev)
+        elif request.method == 'POST':
             cur = mysql.connection.cursor()
-            addTitle = request.form["name"]
-            addDesc = request.form["desc"]
-            addGenre = request.form["genre"]
-            addCP = request.form["checkpoints"]
-            addPrice = request.form["price"]
+            addTitle = request.form['name']
+            addDesc = request.form['desc']
+            addGenre = request.form['genre']
+            addCP = request.form['checkpoints']
+            addPrice = request.form['price']
 
             cur.execute("SELECT MAX(gameID) FROM game")
             addGID = cur.fetchone()[0] + 1
-            addDID = session["userID"]
-            addDName = session["username"]
+            addDID = session['userID']
+            addDName = session['username']
 
             cur.execute("SELECT * FROM developer WHERE developerID=%s", [addDID])
             match = cur.fetchone()
 
             if not match:
-                cur.execute(
-                    "INSERT INTO developer(developerID, name) VALUES (%s, %s)",
-                    [addDID, addDName],
-                )
+                cur.execute("INSERT INTO developer(developerID, name) VALUES (%s, %s)", [addDID, addDName])
                 mysql.connection.commit()
 
-            # add to game table and user's library
-            cur.execute(
-                """
+            #add to game table and user's library
+            cur.execute("""
                 INSERT INTO game(gameID, title, genre, description, total_checkpoints, developerID, developer_name, price)
                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-                [
-                    addGID,
-                    addTitle,
-                    addGenre,
-                    addDesc,
-                    addCP,
-                    addDID,
-                    addDName,
-                    addPrice,
-                ],
-            )
+            """, [addGID, addTitle, addGenre, addDesc, addCP, addDID, addDName, addPrice])
             mysql.connection.commit()
 
-            cur.execute(
-                "INSERT INTO owned_game(gameID, ownerID, completed_checkpoints) VALUES (%s, %s, 0)",
-                [addGID, addDID],
-            )
+            cur.execute("INSERT INTO owned_game(gameID, ownerID, completed_checkpoints) VALUES (%s, %s, 0)", [addGID, addDID])
             mysql.connection.commit()
             message = "Successfully added!"
 
-            # readying to reload the page
+            #readying to reload the page
             cur.execute("SHOW COLUMNS FROM game LIKE 'genre';")
             data = cur.fetchall()[0][1]
             data = data.replace("enum", "")
             data = literal_eval(data)
 
-            cur.execute(
-                "SELECT developer FROM user WHERE userID=%s;", [session["userID"]]
-            )
+            cur.execute("SELECT developer FROM user WHERE userID=%s;", [session['userID']])
             dev = cur.fetchall()[0][0]
 
             cur.close()
 
-            return render_template("add_game.html", genres=data, dev=dev, msg=message)
+            return render_template('add_game.html', genres=data, dev=dev, msg=message)
         else:
             print("REQUEST TYPE ERROR")
     else:
-        return render_template("add_game.html", user=False)
+        return render_template('add_game.html', user=False)
 
 
-@app.route("/add_to_cart/<int:game_id>")
+@app.route('/add_to_cart/<int:game_id>')
 def add_to_cart(game_id):
-    cart = session.get("cart", [])
+    cart = session.get('cart', [])
     cart.append(game_id)
-    session["cart"] = cart
-    flash("Game added to cart.", "success")
+    session['cart'] = cart
+    flash('Game added to cart.', 'success')
+    
+    return redirect(request.referrer or url_for('games'))
 
-    return redirect(request.referrer or url_for("games"))
-
-
-@app.route("/cart")
+@app.route('/cart')
 def cart():
-    cart = session.get("cart", [])
+    cart = session.get('cart', [])
     cur = mysql.connection.cursor()
 
     if cart:
-
-        fmt = ",".join(["%s"] * len(cart))
-        cur.execute(
-            f"""
+        
+        fmt = ','.join(['%s'] * len(cart))
+        cur.execute(f"""
             SELECT gameID, title, price
             FROM game
             WHERE gameID IN ({fmt})
-        """,
-            tuple(cart),
-        )
+        """, tuple(cart))
         games = cur.fetchall()
         total = sum(float(g[2]) for g in games)
     else:
         games, total = [], 0.0
 
     cur.close()
-    return render_template("cart.html", games=games, total=total)
+    return render_template('cart.html', games=games, total=total)
 
 
-@app.route("/checkout", methods=["GET", "POST"])
+from datetime import datetime
+
+@app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
-    if "loggedin" not in session:
-        return redirect(url_for("login"))
-
-    cart = session.get("cart", [])
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    
+    cart = session.get('cart', [])
     if not cart:
         return "Your cart is empty."
 
     cur = mysql.connection.cursor()
 
-    format_strings = ",".join(["%s"] * len(cart))
-    cur.execute(
-        f"SELECT gameID, title, price FROM game WHERE gameID IN ({format_strings})",
-        cart,
-    )
+    # Fetch game info for items in the cart
+    format_strings = ','.join(['%s'] * len(cart))
+    cur.execute(f"SELECT gameID, title, price FROM game WHERE gameID IN ({format_strings})", cart)
     games = cur.fetchall()
 
     total = sum(g[2] for g in games)
 
-    if request.method == "POST":
-        cc_number = request.form["cc_number"]
-        cvv = request.form["cvv"]
-        exp_month = request.form["exp_month"]
-        exp_year = request.form["exp_year"]
-        street = request.form["street"]
-        city = request.form["city"]
-        state = request.form["state"]
-        country = request.form["country"]
+    if request.method == 'POST':
+        cc_number = request.form['cc_number']
+        cvv = request.form['cvv']
+        exp_month = request.form['exp_month']
+        exp_year = request.form['exp_year']
+        street = request.form['street']
+        city = request.form['city']
+        state = request.form['state']
+        country = request.form['country']
 
-        cur.execute(
-            """
+        # Insert new address
+        cur.execute("""
             INSERT INTO address (street_addr, city, state, country)
             VALUES (%s, %s, %s, %s)
-        """,
-            (street, city, state, country),
-        )
+        """, (street, city, state, country))
 
         billing_address = cur.lastrowid
 
-        exp_date = f"{exp_year}-{exp_month}-01"
-        user_id = session["userID"]
 
-        cur.execute(
-            """
+        exp_date = f"{exp_year}-{exp_month}-01"
+        user_id = session['userID']
+
+        # Insert payment info
+        cur.execute("""
         INSERT INTO payment_info (userID, card_num, cvv, exp_date, billing_address)
         VALUES (%s, %s, %s, %s, %s)
-        """,
-            (user_id, cc_number, cvv, exp_date, billing_address),
-        )
+        """, (user_id, cc_number, cvv, exp_date, billing_address))
         payment_id = cur.lastrowid
+
 
         # For each game: create a transaction and add to owned_game
         for game in games:
@@ -529,42 +440,86 @@ def checkout():
             payment_time = datetime.now()
 
             # Insert transaction
-            cur.execute(
-                """
+            cur.execute("""
                 INSERT INTO `transaction` (paymentID, gameID, payment_time, amnt_due, subscription)
                 VALUES (%s, %s, %s, %s, %s)
-            """,
-                (payment_id, game_id, payment_time, price, False),
-            )
+            """, (payment_id, game_id, payment_time, price, False))
 
             # Add to owned_game
-            cur.execute(
-                """
+            cur.execute("""
                 INSERT INTO owned_game (ownerID, gameID, completed_checkpoints)
                 VALUES (%s, %s, 0)
-            """,
-                (user_id, game_id),
-            )
+            """, (user_id, game_id))
 
         mysql.connection.commit()
         cur.close()
 
-        session["cart"] = []
+        # Clear cart after purchase
+        session['cart'] = []
 
-        return redirect(url_for("library"))
+        return redirect(url_for('library'))
 
     cur.close()
-    return render_template("checkout.html", games=games, total=total)
+    return render_template('checkout.html', games=games, total=total)
 
 
-@app.route("/remove_from_cart/<int:game_id>", methods=["POST"])
+
+@app.route('/remove_from_cart/<int:game_id>', methods=['POST'])
 def remove_from_cart(game_id):
-    cart = session.get("cart", [])
+    cart = session.get('cart', [])
     if game_id in cart:
         cart.remove(game_id)
-        session["cart"] = cart
-        flash("Removed from cart.", "info")
-    return redirect(url_for("cart"))
+        session['cart'] = cart
+        flash('Removed from cart.', 'info')
+    return redirect(url_for('cart'))   
+
+@app.route("/friends")
+def friends():
+    if "loggedin" in session:
+        cur = mysql.connection.cursor()
+
+        cur.execute(
+            f"""
+                SELECT friendID, userID, date_friended
+                FROM friends
+                where userID = {session["userID"]};
+            """
+        )
+
+        data = cur.fetchall()
+
+        #data = [dict(zip([column[0] for column in cur.description], row)) for row in data]
+
+        cur.close()
+
+        for friends in data:
+            print(data)
+        
+            
+        return render_template("friends.html", data = data)
+    
+    else:
+        return render_template("library.html", user=False)
+        
+
+@app.route("/add_friend", methods=['POST'])
+def add_friend():
+    if "loggedin" in session:
+        user_id = session["userID"]
+        friend_id = request.form["friendID"]
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("INSERT INTO friends (friendID, userID, date_friended) VALUES (%s, %s, NOW())", (friend_id, user_id),)
+    
+        mysql.connection.commit()
+
+        cur.close()
+
+        return redirect(url_for("friends"))
+
+    return redirect(url_for("friends"))
+
 
 
 if __name__ == "__main__":

@@ -12,16 +12,25 @@
     <div class="games-container">
         <h1>Friends List</h1>
 
-        <div class="games-grid">
+        <div class="friends-grid">
             {% for friends in data %}
-            <div class="game-image">
-                <!-- for user profile picture -->
-                <img src="{{ url_for('static', filename='images/' ~ user[1] ~ '.webp') }}" alt="{{ user[1] }} image" />
-            </div>
-            <div class="game-info">
-                <h3>{{dev[1]}}</h3>
-                    <p class="description">{{friends[3]}}</p>
-            </div>
+                <div class="profile-image">
+                    <img src="{{ url_for('static', filename='images/' ~ friends[0] ~ '.webp') }}" alt="{{ friends[0] }} image" />
+                   <!-- <p class="library-text">Friend ID: {{ friends[0] }}</p> -->
+                </div>
+                <div class="game-info">
+                    <h3>User ID: {{ friends[0] }}</h3>
+                    <p class="description">Date Friended: {{ friends[2] }}</p>
+                </div>
             {% endfor %}
         </div>
+    </div>
+
+    <div class="games-container">
+        <form action="{{ url_for('add_friend') }}" method="POST">
+            <button type="submit">Add Friend</button>
+            <input type="text" name="friendID" placeholder="Enter Friend's User ID" required>
+        </form>
+    </div>
+
 </body>
