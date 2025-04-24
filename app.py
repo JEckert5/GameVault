@@ -37,6 +37,19 @@ def main():
 
     featuredGames = sample(cur.fetchall(), 4)
 
+    alreadyOwned = {}
+    if "loggedin" in session:
+        for game in featuredGames:
+            cur.execute(f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {game[0]} AND o.ownerID = {session["userID"]}")
+            result = cur.fetchall()
+            if result:
+                alreadyOwned[game[0]] = True
+            else:
+                alreadyOwned[game[0]] = False
+    else:
+        for game in featuredGames:
+            alreadyOwned[game[0]] = False
+
     cur.execute(
         """
             SELECT developerID, name, about FROM developer;
@@ -47,7 +60,7 @@ def main():
 
     cur.close()
 
-    return render_template("index.html", games=featuredGames, devs=featuredDevelopers)
+    return render_template("index.html", games=featuredGames, devs=featuredDevelopers, owned=alreadyOwned)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -165,6 +178,7 @@ def logout():
         session.pop("username", None)
         session.pop("email", None)
         session.pop("status", None)
+        session.pop("developer", None)
 
         flash("You have been logged out.", "info")
     return redirect(url_for("main"))
@@ -217,9 +231,22 @@ def games():
             games_by_genre[genre] = []
         games_by_genre[genre].append(game)
 
+    alreadyOwned = {}
+    if "loggedin" in session:
+        for game in games:
+            cur.execute(f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {game[0]} AND o.ownerID = {session["userID"]}")
+            result = cur.fetchall()
+            if result:
+                alreadyOwned[game[0]] = True
+            else:
+                alreadyOwned[game[0]] = False
+    else:
+        for game in games:
+            alreadyOwned[game[0]] = False
+
     cur.close()
 
-    return render_template("games.html", games_by_genre=games_by_genre)
+    return render_template("games.html", games_by_genre=games_by_genre, owned=alreadyOwned)
 
 
 @app.route("/games/<int:id>", methods=["GET", "POST"])
@@ -247,10 +274,22 @@ def game(id: int):
 
         reviews = cur.fetchall()
 
+        alreadyOwned = False
+
+        if "loggedin" in session:
+            cur.execute(
+                f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {id} and o.ownerID = {session["userID"]};"
+            )
+            result = cur.fetchall()
+            if result:
+                alreadyOwned = True
+            else:
+                alreadyOwned = False
+
         cur.close()
 
         return render_template(
-            "games.html", game=game[0], reviews=reviews, duplicate=dupe
+            "games.html", game=game[0], reviews=reviews, duplicate=dupe, owned=alreadyOwned
         )
     else:
         review = request.form.get("review-content")
@@ -332,7 +371,7 @@ def library():
 
         cur.execute(
             f"""
-                SELECT  g.title, o.completed_checkpoints, g.total_checkpoints
+                SELECT  g.gameID, g.title, o.completed_checkpoints, g.total_checkpoints
                 FROM owned_game o JOIN game g
                 ON o.ownerID = {session["userID"]} AND o.gameID = g.gameID;
             """
@@ -438,9 +477,17 @@ def add_game():
 @app.route("/add_to_cart/<int:game_id>")
 def add_to_cart(game_id):
     cart = session.get("cart", [])
-    cart.append(game_id)
-    session["cart"] = cart
-    flash("Game added to cart.", "success")
+
+    addable = True
+    for g in cart:
+        if g == game_id:
+            addable = False
+            break
+
+    if addable == True:
+        cart.append(game_id)
+        session["cart"] = cart
+        flash("Game added to cart.", "success")
 
     return redirect(request.referrer or url_for("games"))
 

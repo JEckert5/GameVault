@@ -132,15 +132,18 @@
 }
 
 .library-item {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    column-gap: 0.5rem;
-    border: #333;
-    margin: 0 auto;
-    border-style: solid;
-    border-width: 0.25rem;
-    border-radius: 0.25rem;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+
+    .game-image > img {
+        object-fit: contain;
+        transform: scale(0.5);
+        width: 100%;
+        height: 100%;
+      }
 }
 
 .library-item:hover {
@@ -148,7 +151,12 @@
 }
 
 .library-text {
-    margin: 0 auto;
+    padding: 1.2rem;
+}
+
+.library-text h3 {
+    margin: 0 0 0.5rem;
+    color: #333;
 }
 
 /* Games Page Styles */
@@ -244,6 +252,12 @@
     color: #444;
     font-size: 0.95rem;
     margin: 0 0 1rem;
+}
+
+.owned {
+    font-weight: 200;
+    font-style: italic;
+    color: #999;
 }
 
 .game-meta {

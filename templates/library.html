@@ -14,15 +14,26 @@
     {% elif not games %}
     <p>You have no games!</p>
     {% else %}
-    <div class="left-div">
-    <div>
-    {% for game in games %}
-        <div class="library-item">
-            <p class="library-text">{{game[0]}}</p>
-            <p class="library-text">Checkpoints: {{game[1]}}/{{game[2]}}</p>
+    <div class="games-container">
+        <div class="games-grid">
+            {% for game in games %}
+            <div class="game-card">
+                <div class="game-image">
+                    <!-- Placeholder for game image -->
+                    <img src="{{ url_for('static', filename='images/' ~ game[1] ~ '.webp') }}" alt="{{ game[1] }} image" />
+                </div>
+                <div class="game-info">
+                    <h3>{{ game[1] }}</h3>
+                    <a class="developer" href="/developer_about/{{game[7]}}">{{ game[6] }}</a>
+                    <p class="description">{{ game[3] }} total checkpoints</p>
+                    <div class="game-meta">
+                        <span class="checkpoints">{{ game[2] }} completed checkpoints</span>
+                    </div>
+                    <a href="/games/{{ game[0] }}" class="view-button">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-    {% endfor %}
-    </div>
     </div>
     {% endif %}
 </body>
