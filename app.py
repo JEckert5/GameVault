@@ -85,7 +85,6 @@ def login():
         cursor.execute("SELECT * FROM user WHERE username = %s", (username,))
         user = cursor.fetchone()
 
-        # Check if user exists and password is correct
         if user:
             if check_password_hash(user["password"], password):
                 session["loggedin"] = True
@@ -93,8 +92,8 @@ def login():
                 session["username"] = user["username"]
                 session["email"] = user["email"]
                 session["status"] = user["status"]
+                session["developer"] = user["developer"]
 
-                # Update user status to ONLINE
                 cursor.execute(
                     'UPDATE user SET status = "ONLINE" WHERE userID = %s',
                     (user["userID"],),
@@ -231,18 +230,30 @@ def games():
     return render_template("games.html", games_by_genre=games_by_genre, owned=alreadyOwned)
 
 
-@app.route("/games/<int:id>")
+@app.route("/games/<int:id>", methods=["GET", "POST"])
 def game(id: int):
-    cur = mysql.connection.cursor()
-    cur.execute(
-        f"""
-            SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
-            FROM game g 
-            JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
-        """
-    )
+    if request.method == "GET":
+        dupe = False
+        if request.args.get("duplicate"):
+            dupe = True
 
-    game = cur.fetchall()
+        cur = mysql.connection.cursor()
+
+        cur.execute(
+            f"""
+                SELECT g.gameID, g.title, g.genre, g.description, g.total_checkpoints, g.developerID, d.name, d.about
+                FROM game g 
+                JOIN developer d ON g.gameID = {id} AND g.developerID = d.developerID;
+            """
+        )
+
+        game = cur.fetchall()
+
+        cur.execute(
+            f"SELECT u.username, title, content, rating FROM review r JOIN user u ON r.gameID = {id} AND u.userID = r.userID;"
+        )
+
+        reviews = cur.fetchall()
 
         alreadyOwned = False
 
@@ -261,7 +272,7 @@ def game(id: int):
         return render_template(
             "games.html", game=game[0], reviews=reviews, duplicate=dupe, owned=alreadyOwned
         )
-       else:
+    else:
         review = request.form.get("review-content")
         title = request.form.get("title-input")
         rating = request.form.get("rating")
@@ -292,6 +303,8 @@ def game(id: int):
         print(review)
 
         mysql.connection.commit()
+
+        cur.close()
 
         return redirect(f"/games/{id}")
 
