@@ -5,7 +5,6 @@
     <title>GameVault - Browse Games</title>
     <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet">
 
-
     <script>
         function reviewbox() {
             var f = document.getElementById("review-input")
@@ -34,7 +33,6 @@
                 {% for game in games %}
                 <div class="game-card">
                     <div class="game-image">
-                        <!-- Placeholder for game image -->
                         <img src="{{ url_for('static', filename='images/' ~ game[1] ~ '.webp') }}" alt="{{ game[1] }} image" />
                     </div>
                     <div class="game-info">
@@ -47,7 +45,8 @@
                         </div>
                         <a href="/games/{{ game[0] }}" class="view-button">View Details</a>
                         {% if owned[game[0]] == False %}
-                            <a href="{{ url_for('add_to_cart', game_id=game[0]) }}" class="add-button">Add to Cart </a>
+                            <a href="{{ url_for('add_to_cart', game_id=game[0]) }}" class="add-button">Add to Cart</a>
+                            <a href="{{ url_for('add_to_wishlist', game_id=game[0]) }}" class="wishlist-button">Wishlist</a>
                         {% else %}
                             <span class="owned">Already owned!</span>
                         {% endif %}
@@ -61,21 +60,20 @@
 
     <!--Individual game detail view-->
     {% elif game %}
-    {{game}}
     <div class="game-card-no-hover">
         <div class="game-image">
-            <!-- Placeholder for game image -->
             <img src="{{ url_for('static', filename='images/' ~ game[1] ~ '.webp') }}" alt="{{ game[1] }} image" />
         </div>
         <div class="game-info">
             <h3>{{ game[1] }}</h3>
-            <a class="developer" href="/developer_about/{{game[7]}}">{{ game[6] }}</a>
+            <a class="developer" href="/developer_about/{{game[5]}}">{{ game[6] }}</a>
             <md class="description">{{ game[3] }}</md>
             <div class="game-meta">
                 <span class="checkpoints">{{ game[4] }} checkpoints</span>
                 <span class="$"> ${{ game[5] }} </span>
                 {% if owned == False %}
-                    <a href="{{ url_for('add_to_cart', game_id=game[0]) }}" class="add-button">Add to Cart </a>
+                    <a href="{{ url_for('add_to_cart', game_id=game[0]) }}" class="add-button">Add to Cart</a>
+                    <a href="{{ url_for('add_to_wishlist', game_id=game[0]) }}" class="wishlist-button">Wishlist</a>
                 {% else %}
                     <p>Already owned!</p>
                 {% endif %}
@@ -101,9 +99,7 @@
         </form>
 
         {% if duplicate %}
-
         <p>You cannot leave 2 reviews on the same game!</p>
-
         {% endif %}
 
         {% endif %}

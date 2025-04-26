@@ -681,6 +681,69 @@ def user_profile(id: int):
 
         return redirect(f"/user_profile/{id}")
 
+@app.route("/add_to_wishlist/<int:game_id>")
+def add_to_wishlist(game_id):
+    if "loggedin" not in session:
+        return redirect(url_for("login"))
+    
+    cur = mysql.connection.cursor()
+    
+    try:
+        cur.execute(
+            "INSERT INTO wishlist (userID, gameID) VALUES (%s, %s)",
+            (session["userID"], game_id)
+        )
+        mysql.connection.commit()
+        flash("Game added to wishlist!", "success")
+    except MySQLdb.IntegrityError:
+        flash("Game is already in your wishlist", "info")
+    
+    cur.close()
+    return redirect(request.referrer or url_for("games"))
+
+@app.route("/wishlist")
+def wishlist():
+    if "loggedin" not in session:
+        return redirect(url_for("login"))
+    
+    cur = mysql.connection.cursor()
+    
+    cur.execute("""
+        SELECT g.gameID, g.title, g.price, d.name 
+        FROM wishlist w
+        JOIN game g ON w.gameID = g.gameID
+        JOIN developer d ON g.developerID = d.developerID
+        WHERE w.userID = %s
+    """, (session["userID"],))
+    
+    wishlist_items = cur.fetchall()
+    cur.close()
+    
+    return render_template("wishlist.html", wishlist_items=wishlist_items)
+
+@app.route("/move_to_cart/<int:game_id>")
+def move_to_cart(game_id):
+    if "loggedin" not in session:
+        return redirect(url_for("login"))
+    
+    # Remove from wishlist
+    cur = mysql.connection.cursor()
+    cur.execute(
+        "DELETE FROM wishlist WHERE userID = %s AND gameID = %s",
+        (session["userID"], game_id)
+    )
+    mysql.connection.commit()
+    
+    # Add to cart session
+    cart = session.get("cart", [])
+    if game_id not in cart:
+        cart.append(game_id)
+        session["cart"] = cart
+    
+    cur.close()
+    flash("Game moved to cart!", "success")
+    return redirect(url_for("wishlist"))
+
 
 if __name__ == "__main__":
     app.run(host="localhost", port=5000)

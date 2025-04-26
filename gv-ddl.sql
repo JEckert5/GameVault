@@ -119,3 +119,11 @@ CREATE TABLE `order_items` (
     FOREIGN KEY    (orderID) REFERENCES `orders` (orderID),
     FOREIGN KEY    (gameID ) REFERENCES `game`   (gameID)
 );
+CREATE TABLE `wishlist` (
+    userID int,
+    gameID int,
+    date_added timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userID) REFERENCES `user` (userID),
+    FOREIGN KEY (gameID) REFERENCES `game` (gameID),
+    PRIMARY KEY (userID, gameID)
+);

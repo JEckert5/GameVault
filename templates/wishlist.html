@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GameVault - Wishlist</title>
+    <link href="{{url_for('static',filename='index.css')}}" rel="stylesheet">
+    <link href="{{url_for('static',filename='favicon.ico')}}" rel="icon" type="image/x-icon">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="center-div">
+        <h1>Your Wishlist</h1>
+        
+        {% if not wishlist_items %}
+            <p>Your wishlist is empty.</p>
+        {% else %}
+            <div class="cart-container">
+                <div class="cart-items">
+                    {% for item in wishlist_items %}
+                    <div class="cart-item-card">
+                        <h3>{{ item[1] }}</h3>
+                        <div class="item-meta">
+                            <span>by {{ item[3] }}</span>
+                            <span>${{ item[2] }}</span>
+                            <a href="{{ url_for('move_to_cart', game_id=item[0]) }}" class="remove-button">Move to Cart</a>
+                            <a href="{{ url_for('add_to_cart', game_id=item[0]) }}" class="remove-button">Add to Cart (Keep in Wishlist)</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
