@@ -721,6 +721,7 @@ def wishlist():
     
     return render_template("wishlist.html", wishlist_items=wishlist_items)
 
+  
 @app.route("/move_to_cart/<int:game_id>")
 def move_to_cart(game_id):
     if "loggedin" not in session:
@@ -743,6 +744,52 @@ def move_to_cart(game_id):
     cur.close()
     flash("Game moved to cart!", "success")
     return redirect(url_for("wishlist"))
+  
+
+@app.route("/friends")
+def friends():
+    if "loggedin" in session:
+        cur = mysql.connection.cursor()
+
+        cur.execute(
+            f"""
+                SELECT friendID, userID, date_friended
+                FROM friends
+                where userID = {session["userID"]};
+            """
+        )
+
+        data = cur.fetchall()
+
+        cur.close()
+
+        for friends in data:
+            print(data)
+        
+            
+        return render_template("friends.html", data = data)
+    
+    else:
+        return render_template("library.html", user=False)
+    
+    
+@app.route("/add_friend", methods=['POST'])
+def add_friend():
+    if "loggedin" in session:
+        user_id = session["userID"]
+        friend_id = request.form["friendID"]
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("INSERT INTO friends (friendID, userID, date_friended) VALUES (%s, %s, NOW())", (friend_id, user_id),)
+    
+        mysql.connection.commit()
+
+        cur.close()
+
+        return redirect(url_for("friends"))
+
+    return redirect(url_for("friends"))
 
 
 if __name__ == "__main__":
