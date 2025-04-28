@@ -597,3 +597,19 @@
 .checkout-button:hover {
     background: #218838;
 }
+
+.wishlist-button {
+    display: inline-block;
+    background: #ff6b6b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s ease;
+    margin-left: 0.5rem;
+}
+
+.wishlist-button:hover {
+    background: #ff5252;
+}
