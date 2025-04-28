@@ -681,6 +681,51 @@ def user_profile(id: int):
 
         return redirect(f"/user_profile/{id}")
 
+@app.route("/friends")
+def friends():
+    if "loggedin" in session:
+        cur = mysql.connection.cursor()
+
+        cur.execute(
+            f"""
+                SELECT friendID, userID, date_friended
+                FROM friends
+                where userID = {session["userID"]};
+            """
+        )
+
+        data = cur.fetchall()
+
+        cur.close()
+
+        for friends in data:
+            print(data)
+        
+            
+        return render_template("friends.html", data = data)
+    
+    else:
+        return render_template("library.html", user=False)
+    
+@app.route("/add_friend", methods=['POST'])
+def add_friend():
+    if "loggedin" in session:
+        user_id = session["userID"]
+        friend_id = request.form["friendID"]
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("INSERT INTO friends (friendID, userID, date_friended) VALUES (%s, %s, NOW())", (friend_id, user_id),)
+    
+        mysql.connection.commit()
+
+        cur.close()
+
+        return redirect(url_for("friends"))
+
+    return redirect(url_for("friends"))
+
+
 
 if __name__ == "__main__":
     app.run(host="localhost", port=5000)

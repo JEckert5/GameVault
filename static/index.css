@@ -217,7 +217,14 @@
         transform: scale(0.5);
         width: 100%;
         height: 100%;
-    }
+      }
+
+    .profile-image > img {
+        object-fit: contain;
+        transform: scale(0.5);
+        width: 100%;
+        height: 100%;
+      }
 }
 
 .game-card {
@@ -256,7 +263,36 @@
     justify-content: center;
 
 }
+.profile-image {
+    height: 160px;
+    width: 160px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    border-radius: 50%; /* Makes it circular */
+    justify-content: center;
+    
+}
 
+.friends-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .game-image > img {
+        object-fit: contain;
+        transform: scale(0.5);
+        width: 100%;
+        height: 100%;
+      }
+
+    .profile-image > img {
+        object-fit: contain;
+        transform: scale(0.5);
+        width: 100%;
+        height: 100%;
+      }
+}
 .image-placeholder {
     font-size: 3rem;
     font-weight: bold;
