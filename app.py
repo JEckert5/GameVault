@@ -7,6 +7,7 @@ from datetime import datetime
 import json
 from random import sample
 from ast import literal_eval
+from os.path import isfile
 
 
 app = Flask(__name__)
@@ -40,7 +41,9 @@ def main():
     alreadyOwned = {}
     if "loggedin" in session:
         for game in featuredGames:
-            cur.execute(f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {game[0]} AND o.ownerID = {session["userID"]}")
+            cur.execute(
+                f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {game[0]} AND o.ownerID = {session["userID"]}"
+            )
             result = cur.fetchall()
             if result:
                 alreadyOwned[game[0]] = True
@@ -60,7 +63,9 @@ def main():
 
     cur.close()
 
-    return render_template("index.html", games=featuredGames, devs=featuredDevelopers, owned=alreadyOwned)
+    return render_template(
+        "index.html", games=featuredGames, devs=featuredDevelopers, owned=alreadyOwned
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -234,7 +239,9 @@ def games():
     alreadyOwned = {}
     if "loggedin" in session:
         for game in games:
-            cur.execute(f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {game[0]} AND o.ownerID = {session["userID"]}")
+            cur.execute(
+                f"SELECT g.gameID FROM game AS g, owned_game AS o WHERE o.gameID = {game[0]} AND o.ownerID = {session["userID"]}"
+            )
             result = cur.fetchall()
             if result:
                 alreadyOwned[game[0]] = True
@@ -246,7 +253,9 @@ def games():
 
     cur.close()
 
-    return render_template("games.html", games_by_genre=games_by_genre, owned=alreadyOwned)
+    return render_template(
+        "games.html", games_by_genre=games_by_genre, owned=alreadyOwned
+    )
 
 
 @app.route("/games/<int:id>", methods=["GET", "POST"])
@@ -289,7 +298,11 @@ def game(id: int):
         cur.close()
 
         return render_template(
-            "games.html", game=game[0], reviews=reviews, duplicate=dupe, owned=alreadyOwned
+            "games.html",
+            game=game[0],
+            reviews=reviews,
+            duplicate=dupe,
+            owned=alreadyOwned,
         )
     else:
         review = request.form.get("review-content")
@@ -681,70 +694,75 @@ def user_profile(id: int):
 
         return redirect(f"/user_profile/{id}")
 
+
 @app.route("/add_to_wishlist/<int:game_id>")
 def add_to_wishlist(game_id):
     if "loggedin" not in session:
         return redirect(url_for("login"))
-    
+
     cur = mysql.connection.cursor()
-    
+
     try:
         cur.execute(
             "INSERT INTO wishlist (userID, gameID) VALUES (%s, %s)",
-            (session["userID"], game_id)
+            (session["userID"], game_id),
         )
         mysql.connection.commit()
         flash("Game added to wishlist!", "success")
     except MySQLdb.IntegrityError:
         flash("Game is already in your wishlist", "info")
-    
+
     cur.close()
     return redirect(request.referrer or url_for("games"))
+
 
 @app.route("/wishlist")
 def wishlist():
     if "loggedin" not in session:
         return redirect(url_for("login"))
-    
+
     cur = mysql.connection.cursor()
-    
-    cur.execute("""
+
+    cur.execute(
+        """
         SELECT g.gameID, g.title, g.price, d.name 
         FROM wishlist w
         JOIN game g ON w.gameID = g.gameID
         JOIN developer d ON g.developerID = d.developerID
         WHERE w.userID = %s
-    """, (session["userID"],))
-    
+    """,
+        (session["userID"],),
+    )
+
     wishlist_items = cur.fetchall()
     cur.close()
-    
+
     return render_template("wishlist.html", wishlist_items=wishlist_items)
 
-  
+
 @app.route("/move_to_cart/<int:game_id>")
 def move_to_cart(game_id):
     if "loggedin" not in session:
         return redirect(url_for("login"))
-    
+
     # Remove from wishlist
     cur = mysql.connection.cursor()
     cur.execute(
         "DELETE FROM wishlist WHERE userID = %s AND gameID = %s",
-        (session["userID"], game_id)
+        (session["userID"], game_id),
     )
     mysql.connection.commit()
-    
+
     # Add to cart session
     cart = session.get("cart", [])
     if game_id not in cart:
         cart.append(game_id)
         session["cart"] = cart
-    
+
     cur.close()
     flash("Game moved to cart!", "success")
     return redirect(url_for("wishlist"))
-  
+
 
 @app.route("/friends")
 def friends():
@@ -765,15 +783,14 @@ def friends():
 
         for friends in data:
             print(data)
-        
-            
-        return render_template("friends.html", data = data)
-    
+
+        return render_template("friends.html", data=data)
+
     else:
         return render_template("library.html", user=False)
-    
-    
-@app.route("/add_friend", methods=['POST'])
+
+
+@app.route("/add_friend", methods=["POST"])
 def add_friend():
     if "loggedin" in session:
         user_id = session["userID"]
@@ -781,8 +798,11 @@ def add_friend():
 
         cur = mysql.connection.cursor()
 
-        cur.execute("INSERT INTO friends (friendID, userID, date_friended) VALUES (%s, %s, NOW())", (friend_id, user_id),)
-    
+        cur.execute(
+            "INSERT INTO friends (friendID, userID, date_friended) VALUES (%s, %s, NOW())",
+            (friend_id, user_id),
+        )
+
         mysql.connection.commit()
 
         cur.close()

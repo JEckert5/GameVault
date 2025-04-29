@@ -9,14 +9,18 @@
 <body>
 {% include 'navbar.html' %}
 <div class="center-div">
-    <h1>{{dev[0]}}</h1>
+    <div class="game-image" style="height:auto;margin-bottom:15px">
+        <img src="{{ url_for('static', filename='images/' ~ dev[0] ~ '.webp') }}" style="margin:10px"/>
+    </div>
     <div class="center-div">
         <md>{{dev[1]}}</md>
     </div>
 
     <br>
 
-    <div class="left-div">
+
+    <div class="left-div" style="width:50%">
+    <p>Games:</p>
         <!--List Games they have made-->
         {% for game in games %}
 
